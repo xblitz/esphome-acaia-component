@@ -44,11 +44,10 @@ namespace esphome {
                         weightHistory.pop_front();
                     }
 
-                    // Kg is the SI unit, which is also the unit represented in esphome.const, so
-                    // we'll use that.
-                    float weightInKg = message.weight / 1000.f;
-                    if (should_set(weight_, weightInKg, 0.00001)) {
-                        weight_->publish_state(weightInKg);
+                    
+                    float weightInG = message.weight;
+                    if (should_set(weight_, weightInG, 0.01)) {
+                        weight_->publish_state(weightInG);
                     }
                 }
 

@@ -1,12 +1,13 @@
 import esphome.codegen as cg
 import esphome.config_validation as cv
 from esphome.components import sensor
-from esphome.const import CONF_ID, CONF_FLOW, CONF_WEIGHT, UNIT_KILOGRAM, ICON_SCALE, ICON_WATER, STATE_CLASS_MEASUREMENT
+from esphome.const import CONF_ID, CONF_FLOW, CONF_WEIGHT, ICON_SCALE, ICON_WATER, STATE_CLASS_MEASUREMENT
 
 from .. import acaia_ns, Acaia
 
 CONF_ACAIA_ID = "acaia_id"
 
+UNIT_GRAM = "g"
 UNIT_GRAM_PER_SECOND = "g/s"
 
 AcaiaSensor = acaia_ns.class_(
@@ -20,7 +21,7 @@ CONFIG_SCHEMA = cv.Schema(
         cv.GenerateID(CONF_ID): cv.declare_id(AcaiaSensor),
         cv.GenerateID(CONF_ACAIA_ID): cv.use_id(Acaia),
         cv.Optional(CONF_WEIGHT): sensor.sensor_schema(
-            unit_of_measurement=UNIT_KILOGRAM,
+            unit_of_measurement=UNIT_GRAM,
             icon=ICON_SCALE,
             accuracy_decimals=1,
             state_class=STATE_CLASS_MEASUREMENT,

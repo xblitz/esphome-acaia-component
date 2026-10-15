@@ -157,7 +157,7 @@ namespace esphome {
                                 case 0x05: {
                                     message.type = AcaiaMessageType::weight;
                                     message.has_weight = true;
-                                    message.weight = decodeWeight((packetBuffer[6] << 8) + packetBuffer[5], packetBuffer[9], packetBuffer[10]);
+                                    message.weight = decodeWeight((packetBuffer[7] << 16) | (packetBuffer[6] << 8) | packetBuffer[5], packetBuffer[9], packetBuffer[10]);
 
                                     break;
                                 }
@@ -174,15 +174,15 @@ namespace esphome {
                                     if (packetBuffer[5] == 0x00 && packetBuffer[6] == 0x05) {
                                         message.button = tare;
                                         message.has_weight = true;
-                                        message.weight = decodeWeight((packetBuffer[8] << 8) + packetBuffer[7], packetBuffer[11], packetBuffer[12]);
+                                        message.weight = decodeWeight((packetBuffer[9] << 16) | (packetBuffer[8] << 8) | packetBuffer[7], packetBuffer[11], packetBuffer[12]);
                                     } else if (packetBuffer[5] == 0x08 && packetBuffer[6] == 0x05) {
                                         message.button = start;
                                         message.has_weight = true;
-                                        message.weight = decodeWeight((packetBuffer[8] << 8) + packetBuffer[7], packetBuffer[11], packetBuffer[12]);
+                                        message.weight = decodeWeight((packetBuffer[9] << 16) | (packetBuffer[8] << 8) | packetBuffer[7], packetBuffer[11], packetBuffer[12]);
                                     } else if (packetBuffer[5] == 0x0a && packetBuffer[6] == 0x07) {
                                         message.button = stop;
                                         message.has_weight = true;
-                                        message.weight = decodeWeight((packetBuffer[12] << 8) + packetBuffer[11], packetBuffer[15], packetBuffer[16]);
+                                        message.weight = decodeWeight((packetBuffer[13] << 16) | (packetBuffer[12] << 8) | packetBuffer[11], packetBuffer[15], packetBuffer[16]);
                                         message.has_time = true;
                                         message.time = decodeTime(packetBuffer[7], packetBuffer[8], packetBuffer[9]);
                                     } else if (packetBuffer[5] == 0x09 && packetBuffer[6] == 0x07) {
@@ -190,7 +190,7 @@ namespace esphome {
                                         message.has_time = true;
                                         message.time = decodeTime(packetBuffer[7], packetBuffer[8], packetBuffer[9]);
                                         message.has_weight = true;
-                                        message.weight = decodeWeight((packetBuffer[12] << 8) + packetBuffer[11], packetBuffer[15], packetBuffer[16]);
+                                        message.weight = decodeWeight((packetBuffer[13] << 16) | (packetBuffer[12] << 8) | packetBuffer[11], packetBuffer[15], packetBuffer[16]);
                                     }
 
                                     break;
@@ -199,7 +199,7 @@ namespace esphome {
                                     message.type = heartbeat;
                                     if (packetBuffer[7] == 0x05) {
                                         message.has_weight = true;
-                                        message.weight = decodeWeight((packetBuffer[9] << 8) + packetBuffer[8], packetBuffer[12], packetBuffer[13]);
+                                        message.weight = decodeWeight((packetBuffer[10] << 16) | (packetBuffer[9] << 8) | packetBuffer[8], packetBuffer[12], packetBuffer[13]);
                                     } else if (packetBuffer[7] == 0x07) {
                                         message.has_time = true;
                                         message.time = decodeTime(packetBuffer[8], packetBuffer[9], packetBuffer[10]);
@@ -320,7 +320,7 @@ namespace esphome {
                 }*/
             }
 
-            float decodeWeight(uint16_t raw, uint8_t unit, uint8_t signifier) {
+            float decodeWeight(uint32_t raw, uint8_t unit, uint8_t signifier) {
                 float divisor = powf(10.f, (float)unit);
                 float multiplier = ((signifier & 0x02) == 0x02) ? -1.f : 1.f;
                 return ((float)raw / divisor) * multiplier;
