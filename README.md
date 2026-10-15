@@ -2,7 +2,7 @@
 
 An ESPHome external component that connects to **Acaia Lunar** scales over BLE and exposes weight, flow, timer, battery, mode, and scale settings as native ESPHome entities.
 
-Maintained fork of [variegated-coffee/esphome-acaia-component](https://github.com/variegated-coffee/esphome-acaia-component), modernized for current ESPHome and extended with multi-scale support, settings entities, actions, and triggers.
+Maintained fork of [variegated-coffee/esphome-acaia-component](https://github.com/variegated-coffee/esphome-acaia-component), modernized for current ESPHome and extended with multi-scale support, settings entities, actions, and triggers. It has diverged too far to merge back — please file issues and PRs here, not upstream.
 
 ## Features
 
