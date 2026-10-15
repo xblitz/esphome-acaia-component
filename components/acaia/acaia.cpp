@@ -182,22 +182,26 @@ void Acaia::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_
                                 message.button = tare;
                                 message.has_weight = true;
                                 message.weight = decode_weight((packet_buffer_[9] << 16) | (packet_buffer_[8] << 8) | packet_buffer_[7], packet_buffer_[11], packet_buffer_[12]);
+                                this->on_tare_callback_.call();
                             } else if (packet_buffer_[5] == 0x08 && packet_buffer_[6] == 0x05 && packet_len >= 13) {
                                 message.button = start;
                                 message.has_weight = true;
                                 message.weight = decode_weight((packet_buffer_[9] << 16) | (packet_buffer_[8] << 8) | packet_buffer_[7], packet_buffer_[11], packet_buffer_[12]);
+                                this->on_timer_start_callback_.call();
                             } else if (packet_buffer_[5] == 0x0a && packet_buffer_[6] == 0x07 && packet_len >= 17) {
                                 message.button = stop;
                                 message.has_weight = true;
                                 message.weight = decode_weight((packet_buffer_[13] << 16) | (packet_buffer_[12] << 8) | packet_buffer_[11], packet_buffer_[15], packet_buffer_[16]);
                                 message.has_time = true;
                                 message.time = decode_time(packet_buffer_[7], packet_buffer_[8], packet_buffer_[9]);
+                                this->on_timer_stop_callback_.call();
                             } else if (packet_buffer_[5] == 0x09 && packet_buffer_[6] == 0x07 && packet_len >= 17) {
                                 message.button = reset;
                                 message.has_time = true;
                                 message.time = decode_time(packet_buffer_[7], packet_buffer_[8], packet_buffer_[9]);
                                 message.has_weight = true;
                                 message.weight = decode_weight((packet_buffer_[13] << 16) | (packet_buffer_[12] << 8) | packet_buffer_[11], packet_buffer_[15], packet_buffer_[16]);
+                                this->on_timer_reset_callback_.call();
                             }
 
                             break;
@@ -250,6 +254,18 @@ void Acaia::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_
 
 void Acaia::add_on_message_callback(std::function<void(AcaiaMessage)> callback) {
     this->on_message_callback_.add(std::move(callback));
+}
+void Acaia::add_on_tare_callback(std::function<void()> callback) {
+    this->on_tare_callback_.add(std::move(callback));
+}
+void Acaia::add_on_timer_start_callback(std::function<void()> callback) {
+    this->on_timer_start_callback_.add(std::move(callback));
+}
+void Acaia::add_on_timer_stop_callback(std::function<void()> callback) {
+    this->on_timer_stop_callback_.add(std::move(callback));
+}
+void Acaia::add_on_timer_reset_callback(std::function<void()> callback) {
+    this->on_timer_reset_callback_.add(std::move(callback));
 }
 
 void Acaia::dump_config() {

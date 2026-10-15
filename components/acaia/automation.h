@@ -52,5 +52,33 @@ namespace esphome {
         protected:
             Acaia *acaia_;
         };
+
+        class AcaiaTareTrigger : public Trigger<> {
+        public:
+            explicit AcaiaTareTrigger(Acaia *parent) {
+                parent->add_on_tare_callback([this]() { this->trigger(); });
+            }
+        };
+
+        class AcaiaTimerStartTrigger : public Trigger<> {
+        public:
+            explicit AcaiaTimerStartTrigger(Acaia *parent) {
+                parent->add_on_timer_start_callback([this]() { this->trigger(); });
+            }
+        };
+
+        class AcaiaTimerStopTrigger : public Trigger<> {
+        public:
+            explicit AcaiaTimerStopTrigger(Acaia *parent) {
+                parent->add_on_timer_stop_callback([this]() { this->trigger(); });
+            }
+        };
+
+        class AcaiaTimerResetTrigger : public Trigger<> {
+        public:
+            explicit AcaiaTimerResetTrigger(Acaia *parent) {
+                parent->add_on_timer_reset_callback([this]() { this->trigger(); });
+            }
+        };
     }
 }

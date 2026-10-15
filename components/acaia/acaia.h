@@ -22,6 +22,10 @@ namespace esphome {
             void gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_if, esp_ble_gattc_cb_param_t *param) override;
             void loop() override;
             void add_on_message_callback(std::function<void(AcaiaMessage)> callback);
+            void add_on_tare_callback(std::function<void()> callback);
+            void add_on_timer_start_callback(std::function<void()> callback);
+            void add_on_timer_stop_callback(std::function<void()> callback);
+            void add_on_timer_reset_callback(std::function<void()> callback);
             void dump_config() override;
             void send_tare();
             void reset_timer();
@@ -48,6 +52,10 @@ namespace esphome {
             uint16_t packet_buffer_head_ = 0;
 
             CallbackManager<void(AcaiaMessage)> on_message_callback_;
+            CallbackManager<void()> on_tare_callback_;
+            CallbackManager<void()> on_timer_start_callback_;
+            CallbackManager<void()> on_timer_stop_callback_;
+            CallbackManager<void()> on_timer_reset_callback_;
         };
     }
 }
