@@ -41,6 +41,8 @@ namespace esphome {
 
         protected:
             void send_message_to_handlers(AcaiaMessage message);
+            void parse_record_chain(size_t offset, size_t end, AcaiaMessage &message);
+            void handle_button_key(uint8_t key, AcaiaMessage &message, size_t packet_len);
             float decode_weight(uint32_t raw, uint8_t unit, uint8_t signifier);
             float decode_time(uint8_t minutes, uint8_t seconds, uint8_t tens);
             void send_heartbeat();
