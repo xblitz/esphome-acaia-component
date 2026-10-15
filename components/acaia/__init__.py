@@ -9,6 +9,7 @@ from esphome.const import (
 )
 
 CODEOWNERS = ["@magnusnordlander"]
+MULTI_CONF = True
 acaia_ns = cg.esphome_ns.namespace("esphome::acaia")
 
 Acaia = acaia_ns.class_("Acaia", cg.Component, ble_client.BLEClientNode)
