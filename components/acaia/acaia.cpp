@@ -22,6 +22,7 @@ constexpr uint8_t ACAIA_MESSAGE_TYPE_NOTIFICATION_REQUEST = 12;
 constexpr uint8_t ACAIA_MESSAGE_TYPE_HEARTBEAT = 0;
 constexpr uint8_t ACAIA_MESSAGE_TYPE_TARE = 4;
 constexpr uint8_t ACAIA_MESSAGE_TYPE_TIMER_MANIPULATION = 13;
+constexpr uint8_t ACAIA_MESSAGE_TYPE_GET_SETTINGS = 6;
 constexpr uint8_t SETTINGS_UNIT_GRAMS = 2;
 constexpr uint8_t SETTINGS_UNIT_OUNCES = 5;
 constexpr float OUNCES_TO_GRAMS = 28.349523125f;
@@ -354,6 +355,17 @@ void Acaia::stop_timer() {
     uint8_t encoded_payload[sizeof(payload) + 5];
 
     encode(ACAIA_MESSAGE_TYPE_TIMER_MANIPULATION, payload, sizeof(payload), encoded_payload, sizeof(encoded_payload));
+
+    write_to_scale_characteristic(encoded_payload, sizeof(encoded_payload));
+}
+
+void Acaia::refresh_settings() {
+    ESP_LOGD(TAG, "Requesting settings");
+    uint8_t payload[16] = {};
+
+    uint8_t encoded_payload[sizeof(payload) + 5];
+
+    encode(ACAIA_MESSAGE_TYPE_GET_SETTINGS, payload, sizeof(payload), encoded_payload, sizeof(encoded_payload));
 
     write_to_scale_characteristic(encoded_payload, sizeof(encoded_payload));
 }

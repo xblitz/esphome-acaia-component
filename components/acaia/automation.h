@@ -53,6 +53,17 @@ namespace esphome {
             Acaia *acaia_;
         };
 
+        template<typename... Ts>
+        class AcaiaRefreshSettingsAction : public Action<Ts...> {
+        public:
+            explicit AcaiaRefreshSettingsAction(Acaia *acaia) : acaia_(acaia) {}
+
+            void play(const Ts &...x) override { acaia_->refresh_settings(); }
+
+        protected:
+            Acaia *acaia_;
+        };
+
         class AcaiaTareTrigger : public Trigger<> {
         public:
             explicit AcaiaTareTrigger(Acaia *parent) {

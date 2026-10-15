@@ -33,6 +33,7 @@ namespace esphome {
             void reset_timer();
             void start_timer();
             void stop_timer();
+            void refresh_settings();
 
         protected:
             void send_message_to_handlers(AcaiaMessage message);
