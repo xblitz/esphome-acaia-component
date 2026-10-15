@@ -136,8 +136,13 @@ void Acaia::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_
                 auto packet_type = packet_buffer_[2];
 
                 if (packet_type == PACKET_TYPE_SETTINGS) {
-                    // Settings
-                    ESP_LOGI(TAG, "Settings packet");
+                    AcaiaMessage message;
+                    message.timestamp = esp_timer_get_time();
+                    message.connected = connected_;
+                    message.has_battery = true;
+                    message.battery = packet_buffer_[4] & 0x7F;
+                    ESP_LOGI(TAG, "Settings packet, battery %d%%", (int) message.battery);
+                    send_message_to_handlers(message);
                 } else if (packet_type == PACKET_TYPE_MESSAGE) {
                     // Message
                     auto message_type = packet_buffer_[4];

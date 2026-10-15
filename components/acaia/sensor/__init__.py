@@ -1,13 +1,14 @@
 import esphome.codegen as cg
 import esphome.config_validation as cv
 from esphome.components import sensor
-from esphome.const import CONF_ID, CONF_FLOW, CONF_WEIGHT, DEVICE_CLASS_DURATION, DEVICE_CLASS_WEIGHT, ICON_SCALE, ICON_TIMER, ICON_WATER, STATE_CLASS_MEASUREMENT, UNIT_SECOND
+from esphome.const import CONF_ID, CONF_FLOW, CONF_WEIGHT, DEVICE_CLASS_BATTERY, DEVICE_CLASS_DURATION, DEVICE_CLASS_WEIGHT, ICON_BATTERY, ICON_SCALE, ICON_TIMER, ICON_WATER, STATE_CLASS_MEASUREMENT, UNIT_PERCENT, UNIT_SECOND
 
 from .. import acaia_ns, Acaia
 
 CONF_ACAIA_ID = "acaia_id"
 
 CONF_TIMER = "timer"
+CONF_BATTERY = "battery"
 
 UNIT_GRAM = "g"
 UNIT_GRAM_PER_SECOND = "g/s"
@@ -42,6 +43,13 @@ CONFIG_SCHEMA = cv.Schema(
             device_class=DEVICE_CLASS_DURATION,
             state_class=STATE_CLASS_MEASUREMENT,
         ),
+        cv.Optional(CONF_BATTERY): sensor.sensor_schema(
+            unit_of_measurement=UNIT_PERCENT,
+            icon=ICON_BATTERY,
+            accuracy_decimals=0,
+            device_class=DEVICE_CLASS_BATTERY,
+            state_class=STATE_CLASS_MEASUREMENT,
+        ),
     }
 )
 
@@ -61,3 +69,7 @@ async def to_code(config):
     if timer_config := config.get(CONF_TIMER):
         sens = await sensor.new_sensor(timer_config)
         cg.add(var.set_timer(sens))
+
+    if battery_config := config.get(CONF_BATTERY):
+        sens = await sensor.new_sensor(battery_config)
+        cg.add(var.set_battery(sens))
