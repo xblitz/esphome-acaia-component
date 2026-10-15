@@ -1,11 +1,13 @@
 import esphome.codegen as cg
 import esphome.config_validation as cv
 from esphome.components import sensor
-from esphome.const import CONF_ID, CONF_FLOW, CONF_WEIGHT, DEVICE_CLASS_WEIGHT, ICON_SCALE, ICON_WATER, STATE_CLASS_MEASUREMENT
+from esphome.const import CONF_ID, CONF_FLOW, CONF_WEIGHT, DEVICE_CLASS_DURATION, DEVICE_CLASS_WEIGHT, ICON_SCALE, ICON_TIMER, ICON_WATER, STATE_CLASS_MEASUREMENT, UNIT_SECOND
 
 from .. import acaia_ns, Acaia
 
 CONF_ACAIA_ID = "acaia_id"
+
+CONF_TIMER = "timer"
 
 UNIT_GRAM = "g"
 UNIT_GRAM_PER_SECOND = "g/s"
@@ -33,6 +35,13 @@ CONFIG_SCHEMA = cv.Schema(
             accuracy_decimals=1,
             state_class=STATE_CLASS_MEASUREMENT,
         ),
+        cv.Optional(CONF_TIMER): sensor.sensor_schema(
+            unit_of_measurement=UNIT_SECOND,
+            icon=ICON_TIMER,
+            accuracy_decimals=1,
+            device_class=DEVICE_CLASS_DURATION,
+            state_class=STATE_CLASS_MEASUREMENT,
+        ),
     }
 )
 
@@ -48,3 +57,7 @@ async def to_code(config):
     if flow_config := config.get(CONF_FLOW):
         sens = await sensor.new_sensor(flow_config)
         cg.add(var.set_flow(sens))
+
+    if timer_config := config.get(CONF_TIMER):
+        sens = await sensor.new_sensor(timer_config)
+        cg.add(var.set_timer(sens))

@@ -31,11 +31,13 @@ namespace esphome {
             bool should_set(esphome::sensor::Sensor *sensor, float value, float sigma = 0.1);
             void set_weight(esphome::sensor::Sensor *sens);
             void set_flow(esphome::sensor::Sensor *sens);
+            void set_timer(esphome::sensor::Sensor *sens);
             void dump_config() override;
 
         protected:
             esphome::sensor::Sensor *weight_{nullptr};
             esphome::sensor::Sensor *flow_{nullptr};
+            esphome::sensor::Sensor *timer_{nullptr};
 
             std::deque<AcaiaMeasurement> weight_history_;
             std::vector<float> flows_;
