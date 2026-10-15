@@ -237,6 +237,11 @@ void Acaia::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_
                                 message.has_weight = true;
                                 message.weight = decode_weight((packet_buffer_[13] << 16) | (packet_buffer_[12] << 8) | packet_buffer_[11], packet_buffer_[15], packet_buffer_[16]);
                                 this->on_timer_reset_callback_.call();
+                            } else {
+                                char hex[format_hex_pretty_size(PACKET_BUFFER_SIZE)];
+                                ESP_LOGW(TAG, "Unknown button key %02X %02X: %s", packet_buffer_[5],
+                                         packet_buffer_[6],
+                                         format_hex_pretty_to(hex, packet_buffer_, packet_len));
                             }
 
                             break;
@@ -253,13 +258,27 @@ void Acaia::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_
                             } else if (packet_buffer_[7] == 0x07 && packet_len >= 11) {
                                 message.has_time = true;
                                 message.time = decode_time(packet_buffer_[8], packet_buffer_[9], packet_buffer_[10]);
+                            } else {
+                                char hex[format_hex_pretty_size(PACKET_BUFFER_SIZE)];
+                                ESP_LOGW(TAG, "Unknown heartbeat content %02X: %s", packet_buffer_[7],
+                                         format_hex_pretty_to(hex, packet_buffer_, packet_len));
                             }
 
+                            break;
+                        }
+                        default: {
+                            char hex[format_hex_pretty_size(PACKET_BUFFER_SIZE)];
+                            ESP_LOGW(TAG, "Unknown message type 0x%02X: %s", message_type,
+                                     format_hex_pretty_to(hex, packet_buffer_, packet_len));
                             break;
                         }
                     }
 
                     send_message_to_handlers(message);
+                } else {
+                    char hex[format_hex_pretty_size(PACKET_BUFFER_SIZE)];
+                    ESP_LOGW(TAG, "Unknown packet type 0x%02X: %s", packet_type,
+                             format_hex_pretty_to(hex, packet_buffer_, packet_len));
                 }
 
                 // Drop the consumed packet, keep any pipelined remainder.
