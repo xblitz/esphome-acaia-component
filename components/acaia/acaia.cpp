@@ -159,6 +159,12 @@ void Acaia::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_
                             ESP_LOGW(TAG, "Unknown weight unit code %u, keeping previous.", units_code);
                         }
                     }
+                    if (packet_len >= 10) {
+                        message.has_auto_off = true;
+                        message.auto_off = packet_buffer_[7] * 5;
+                        message.has_beep = true;
+                        message.beep = packet_buffer_[9] == 1;
+                    }
                     ESP_LOGI(TAG, "Settings packet, battery %d%%", (int) message.battery);
                     send_message_to_handlers(message);
                 } else if (packet_type == PACKET_TYPE_MESSAGE) {

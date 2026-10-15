@@ -17,14 +17,19 @@ void AcaiaBinarySensor::handle_message(AcaiaMessage message) {
     if (timer_running_ != nullptr && message.has_timer_running) {
         timer_running_->publish_state(message.timer_running);
     }
+    if (beep_ != nullptr && message.has_beep) {
+        beep_->publish_state(message.beep);
+    }
 }
 
 void AcaiaBinarySensor::set_connected(esphome::binary_sensor::BinarySensor *sens) { connected_ = sens; }
 void AcaiaBinarySensor::set_timer_running(esphome::binary_sensor::BinarySensor *sens) { timer_running_ = sens; }
+void AcaiaBinarySensor::set_beep(esphome::binary_sensor::BinarySensor *sens) { beep_ = sens; }
 
 void AcaiaBinarySensor::dump_config() {
     LOG_BINARY_SENSOR("  ", "Connected", this->connected_);
     LOG_BINARY_SENSOR("  ", "Timer Running", this->timer_running_);
+    LOG_BINARY_SENSOR("  ", "Beep", this->beep_);
 }
 
     }

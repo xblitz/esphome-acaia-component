@@ -17,11 +17,13 @@ namespace esphome {
             void handle_message(AcaiaMessage message);
             void set_connected(esphome::binary_sensor::BinarySensor *sens);
             void set_timer_running(esphome::binary_sensor::BinarySensor *sens);
+            void set_beep(esphome::binary_sensor::BinarySensor *sens);
             void dump_config() override;
 
         protected:
             esphome::binary_sensor::BinarySensor *connected_{nullptr};
             esphome::binary_sensor::BinarySensor *timer_running_{nullptr};
+            esphome::binary_sensor::BinarySensor *beep_{nullptr};
         };
     }
 }

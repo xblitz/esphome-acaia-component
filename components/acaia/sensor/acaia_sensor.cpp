@@ -44,6 +44,12 @@ void AcaiaSensor::handle_message(AcaiaMessage message) {
         }
     }
 
+    if (message.has_auto_off) {
+        if (should_set(auto_off_, message.auto_off, 0.5)) {
+            auto_off_->publish_state(message.auto_off);
+        }
+    }
+
     float avg_flow = calculate_avg_flow();
 
     if (!std::isnan(avg_flow) && should_set(flow_, avg_flow, 0.1)) {
@@ -94,12 +100,14 @@ void AcaiaSensor::set_weight(esphome::sensor::Sensor *sens) { weight_ = sens; }
 void AcaiaSensor::set_flow(esphome::sensor::Sensor *sens) { flow_ = sens; }
 void AcaiaSensor::set_timer(esphome::sensor::Sensor *sens) { timer_ = sens; }
 void AcaiaSensor::set_battery(esphome::sensor::Sensor *sens) { battery_ = sens; }
+void AcaiaSensor::set_auto_off(esphome::sensor::Sensor *sens) { auto_off_ = sens; }
 
 void AcaiaSensor::dump_config() {
     LOG_SENSOR("  ", "Weight", this->weight_);
     LOG_SENSOR("  ", "Flow", this->flow_);
     LOG_SENSOR("  ", "Timer", this->timer_);
     LOG_SENSOR("  ", "Battery", this->battery_);
+    LOG_SENSOR("  ", "Auto Off", this->auto_off_);
 }
 
     }

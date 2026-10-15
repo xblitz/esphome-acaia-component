@@ -27,6 +27,12 @@ namespace esphome {
             bool has_units = false;
             std::string units;
 
+            bool has_auto_off = false;
+            float auto_off;
+
+            bool has_beep = false;
+            bool beep = false;
+
             AcaiaButton button = tare;
 
             bool connected = false;

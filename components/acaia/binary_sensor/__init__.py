@@ -9,6 +9,7 @@ CONF_ACAIA_ID = "acaia_id"
 
 CONF_CONNECTED = "connected"
 CONF_TIMER_RUNNING = "timer_running"
+CONF_BEEP = "beep"
 
 AcaiaBinarySensor = acaia_ns.class_(
     "AcaiaBinarySensor",
@@ -26,6 +27,7 @@ CONFIG_SCHEMA = cv.Schema(
         cv.Optional(CONF_TIMER_RUNNING): binary_sensor.binary_sensor_schema(
             icon=ICON_TIMER,
         ),
+        cv.Optional(CONF_BEEP): binary_sensor.binary_sensor_schema(),
     }
 )
 
@@ -41,3 +43,7 @@ async def to_code(config):
     if timer_running_config := config.get(CONF_TIMER_RUNNING):
         sens = await binary_sensor.new_binary_sensor(timer_running_config)
         cg.add(var.set_timer_running(sens))
+
+    if beep_config := config.get(CONF_BEEP):
+        sens = await binary_sensor.new_binary_sensor(beep_config)
+        cg.add(var.set_beep(sens))

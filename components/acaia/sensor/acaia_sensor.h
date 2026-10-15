@@ -33,6 +33,7 @@ namespace esphome {
             void set_flow(esphome::sensor::Sensor *sens);
             void set_timer(esphome::sensor::Sensor *sens);
             void set_battery(esphome::sensor::Sensor *sens);
+            void set_auto_off(esphome::sensor::Sensor *sens);
             void dump_config() override;
 
         protected:
@@ -40,6 +41,7 @@ namespace esphome {
             esphome::sensor::Sensor *flow_{nullptr};
             esphome::sensor::Sensor *timer_{nullptr};
             esphome::sensor::Sensor *battery_{nullptr};
+            esphome::sensor::Sensor *auto_off_{nullptr};
 
             std::deque<AcaiaMeasurement> weight_history_;
             std::vector<float> flows_;
