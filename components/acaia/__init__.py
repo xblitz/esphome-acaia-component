@@ -15,7 +15,6 @@ AcaiaTareAction = acaia_ns.class_("AcaiaTareAction", automation.Action)
 AcaiaResetTimerAction = acaia_ns.class_("AcaiaResetTimerAction", automation.Action)
 AcaiaStartTimerAction = acaia_ns.class_("AcaiaStartTimerAction", automation.Action)
 AcaiaStopTimerAction = acaia_ns.class_("AcaiaStopTimerAction", automation.Action)
-AcaiaSetUnitAction = acaia_ns.class_("AcaiaSetUnitAction", automation.Action)
 AcaiaSetSleepAction = acaia_ns.class_("AcaiaSetSleepAction", automation.Action)
 
 AcaiaTareTrigger = acaia_ns.class_("AcaiaTareTrigger", automation.Trigger)
@@ -24,7 +23,6 @@ AcaiaTimerStopTrigger = acaia_ns.class_("AcaiaTimerStopTrigger", automation.Trig
 AcaiaTimerResetTrigger = acaia_ns.class_("AcaiaTimerResetTrigger", automation.Trigger)
 
 CONF_ACAIA_ID = "acaia_id"
-CONF_UNIT = "unit"
 CONF_MINUTES = "minutes"
 CONF_ON_TARE = "on_tare"
 CONF_ON_TIMER_START = "on_timer_start"
@@ -77,24 +75,6 @@ ACAIA_ACTION_NO_ARG_SCHEMA = maybe_simple_id(
 async def no_arg_action(config, action_id, template_arg, args):
     paren = await cg.get_variable(config[CONF_ID])
     return cg.new_Pvariable(action_id, template_arg, paren)
-
-@automation.register_action(
-    "acaia.set_unit",
-    AcaiaSetUnitAction,
-    cv.Schema(
-        {
-            cv.Required(CONF_ID): cv.use_id(Acaia),
-            cv.Required(CONF_UNIT): cv.templatable(cv.one_of("g", "oz", lower=True)),
-        }
-    ),
-    synchronous=True,
-)
-async def set_unit_action(config, action_id, template_arg, args):
-    paren = await cg.get_variable(config[CONF_ID])
-    var = cg.new_Pvariable(action_id, template_arg, paren)
-    cg.add(var.set_unit(await cg.templatable(config[CONF_UNIT], args, cg.std_string)))
-    return var
-
 
 @automation.register_action(
     "acaia.set_sleep",

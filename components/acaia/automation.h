@@ -56,19 +56,6 @@ namespace esphome {
         };
 
         template<typename... Ts>
-        class AcaiaSetUnitAction : public Action<Ts...> {
-        public:
-            explicit AcaiaSetUnitAction(Acaia *acaia) : acaia_(acaia) {}
-
-            TEMPLATABLE_VALUE(std::string, unit)
-
-            void play(const Ts &...x) override { acaia_->set_unit(this->unit_.value(x...)); }
-
-        protected:
-            Acaia *acaia_;
-        };
-
-        template<typename... Ts>
         class AcaiaSetSleepAction : public Action<Ts...> {
         public:
             explicit AcaiaSetSleepAction(Acaia *acaia) : acaia_(acaia) {}
