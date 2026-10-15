@@ -22,7 +22,6 @@ namespace esphome {
             bool has_time = false;
             float time;
 
-            bool has_button = false;
             AcaiaButton button = tare;
 
             bool connected = false;

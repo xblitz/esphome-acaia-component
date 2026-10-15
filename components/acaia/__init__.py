@@ -3,10 +3,7 @@ import esphome.config_validation as cv
 from esphome import automation
 from esphome.automation import maybe_simple_id
 from esphome.components import ble_client
-from esphome.const import (
-    CONF_ID,
-    CONF_TRIGGER_ID,
-)
+from esphome.const import CONF_ID
 
 CODEOWNERS = ["@magnusnordlander"]
 MULTI_CONF = True

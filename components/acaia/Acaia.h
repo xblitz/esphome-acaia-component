@@ -432,10 +432,6 @@ namespace esphome {
             uint8_t packetBuffer[PACKET_BUFFER_SIZE];
             uint16_t packetBufferHead = 0;
 
-            uint8_t unit;
-            uint8_t auto_off;
-            bool beep_on;
-
             CallbackManager<void(AcaiaMessage)> on_message_callback_;
         };
     }

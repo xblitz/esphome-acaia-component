@@ -1,7 +1,7 @@
 import esphome.codegen as cg
 import esphome.config_validation as cv
 from esphome.components import binary_sensor
-from esphome.const import CONF_ID, ICON_RADIOACTIVE
+from esphome.const import CONF_ID
 
 from .. import acaia_ns, Acaia
 
