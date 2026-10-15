@@ -5,6 +5,8 @@
 
 #include "esphome/core/component.h"
 #include "esphome/core/automation.h"
+
+#include <string>
 #include "acaia.h"
 
 namespace esphome {
@@ -48,6 +50,45 @@ namespace esphome {
             explicit AcaiaStopTimerAction(Acaia *acaia) : acaia_(acaia) {}
 
             void play(const Ts &...x) override { acaia_->stop_timer(); }
+
+        protected:
+            Acaia *acaia_;
+        };
+
+        template<typename... Ts>
+        class AcaiaSetUnitAction : public Action<Ts...> {
+        public:
+            explicit AcaiaSetUnitAction(Acaia *acaia) : acaia_(acaia) {}
+
+            TEMPLATABLE_VALUE(std::string, unit)
+
+            void play(const Ts &...x) override { acaia_->set_unit(this->unit_.value(x...)); }
+
+        protected:
+            Acaia *acaia_;
+        };
+
+        template<typename... Ts>
+        class AcaiaSetSleepAction : public Action<Ts...> {
+        public:
+            explicit AcaiaSetSleepAction(Acaia *acaia) : acaia_(acaia) {}
+
+            TEMPLATABLE_VALUE(int, minutes)
+
+            void play(const Ts &...x) override { acaia_->set_sleep(this->minutes_.value(x...)); }
+
+        protected:
+            Acaia *acaia_;
+        };
+
+        template<typename... Ts>
+        class AcaiaSetSoundAction : public Action<Ts...> {
+        public:
+            explicit AcaiaSetSoundAction(Acaia *acaia) : acaia_(acaia) {}
+
+            TEMPLATABLE_VALUE(bool, enabled)
+
+            void play(const Ts &...x) override { acaia_->set_sound(this->enabled_.value(x...)); }
 
         protected:
             Acaia *acaia_;

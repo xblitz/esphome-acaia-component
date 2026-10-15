@@ -12,6 +12,7 @@
 
 #include <cstdint>
 #include <functional>
+#include <string>
 
 constexpr size_t PACKET_BUFFER_SIZE = 64;
 
@@ -34,6 +35,9 @@ namespace esphome {
             void start_timer();
             void stop_timer();
             void refresh_settings();
+            void set_unit(const std::string &unit);
+            void set_sleep(int minutes);
+            void set_sound(bool enabled);
 
         protected:
             void send_message_to_handlers(AcaiaMessage message);
@@ -45,6 +49,7 @@ namespace esphome {
             size_t encode(uint8_t message_type, uint8_t* in_buf, size_t len, uint8_t* out_buf, size_t out_buf_len);
             bool verify_checksum(size_t packet_len);
             void write_to_scale_characteristic(uint8_t* buf, size_t len);
+            void send_setting_change(uint8_t item, uint8_t value);
 
             bool connected_ = false;
 

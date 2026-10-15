@@ -27,6 +27,10 @@ constexpr uint8_t ACAIA_EVENT_TIMER = 0x07;
 constexpr uint8_t ACAIA_EVENT_BUTTON = 0x08;
 constexpr uint8_t ACAIA_EVENT_HEARTBEAT = 0x0B;
 constexpr uint8_t ACAIA_MESSAGE_TYPE_GET_SETTINGS = 6;
+constexpr uint8_t ACAIA_MESSAGE_TYPE_SETTING_CHANGE = 10;
+constexpr uint8_t SETTING_ITEM_UNIT = 0;
+constexpr uint8_t SETTING_ITEM_SLEEP = 1;
+constexpr uint8_t SETTING_ITEM_SOUND = 5;
 constexpr uint8_t SETTINGS_UNIT_GRAMS = 2;
 constexpr uint8_t SETTINGS_UNIT_OUNCES = 5;
 constexpr float OUNCES_TO_GRAMS = 28.349523125f;
@@ -423,6 +427,46 @@ void Acaia::stop_timer() {
     write_to_scale_characteristic(encoded_payload, sizeof(encoded_payload));
 }
 
+void Acaia::set_unit(const std::string &unit) {
+    if (unit == "g") {
+        send_setting_change(SETTING_ITEM_UNIT, SETTINGS_UNIT_GRAMS);
+    } else if (unit == "oz") {
+        send_setting_change(SETTING_ITEM_UNIT, SETTINGS_UNIT_OUNCES);
+    } else {
+        ESP_LOGW(TAG, "[%s] Unknown unit '%s', ignoring.", this->parent_->address_str(), unit.c_str());
+    }
+}
+void Acaia::set_sleep(int minutes) {
+    uint8_t code;
+    switch (minutes) {
+        case 0:
+            code = 0;
+            break;
+        case 5:
+            code = 1;
+            break;
+        case 10:
+            code = 2;
+            break;
+        case 20:
+            code = 3;
+            break;
+        case 30:
+            code = 4;
+            break;
+        case 60:
+            code = 5;
+            break;
+        default:
+            ESP_LOGW(TAG, "[%s] Unsupported sleep timeout %d min, ignoring.", this->parent_->address_str(),
+                     minutes);
+            return;
+    }
+    send_setting_change(SETTING_ITEM_SLEEP, code);
+}
+void Acaia::set_sound(bool enabled) {
+    send_setting_change(SETTING_ITEM_SOUND, enabled ? 1 : 0);
+}
 void Acaia::refresh_settings() {
     ESP_LOGD(TAG, "Requesting settings");
     uint8_t payload[16] = {};
@@ -430,6 +474,16 @@ void Acaia::refresh_settings() {
     uint8_t encoded_payload[sizeof(payload) + 5];
 
     encode(ACAIA_MESSAGE_TYPE_GET_SETTINGS, payload, sizeof(payload), encoded_payload, sizeof(encoded_payload));
+
+    write_to_scale_characteristic(encoded_payload, sizeof(encoded_payload));
+}
+void Acaia::send_setting_change(uint8_t item, uint8_t value) {
+    ESP_LOGD(TAG, "Sending setting change, item %u value %u", item, value);
+    uint8_t payload[] = {0x00, item, value};
+
+    uint8_t encoded_payload[sizeof(payload) + 5];
+
+    encode(ACAIA_MESSAGE_TYPE_SETTING_CHANGE, payload, sizeof(payload), encoded_payload, sizeof(encoded_payload));
 
     write_to_scale_characteristic(encoded_payload, sizeof(encoded_payload));
 }
