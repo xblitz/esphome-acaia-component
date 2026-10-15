@@ -34,7 +34,6 @@ namespace esphome {
             void reset_timer();
             void start_timer();
             void stop_timer();
-            void refresh_settings();
             void set_unit(const std::string &unit);
             void set_sleep(int minutes);
             void set_sound(bool enabled);

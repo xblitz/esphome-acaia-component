@@ -31,7 +31,6 @@ constexpr uint8_t ACAIA_RECORD_BATTERY = 6;
 constexpr uint8_t ACAIA_RECORD_TIMER = 7;
 constexpr uint8_t ACAIA_RECORD_BUTTON = 8;
 constexpr uint8_t ACAIA_RECORD_ACK = 11;
-constexpr uint8_t ACAIA_MESSAGE_TYPE_GET_SETTINGS = 6;
 constexpr uint8_t ACAIA_MESSAGE_TYPE_SETTING_CHANGE = 10;
 constexpr uint8_t SETTING_ITEM_UNIT = 0;
 constexpr uint8_t SETTING_ITEM_SLEEP = 1;
@@ -393,16 +392,6 @@ void Acaia::set_sleep(int minutes) {
 }
 void Acaia::set_sound(bool enabled) {
     send_setting_change(SETTING_ITEM_SOUND, enabled ? 1 : 0);
-}
-void Acaia::refresh_settings() {
-    ESP_LOGD(TAG, "Requesting settings");
-    uint8_t payload[16] = {};
-
-    uint8_t encoded_payload[sizeof(payload) + 5];
-
-    encode(ACAIA_MESSAGE_TYPE_GET_SETTINGS, payload, sizeof(payload), encoded_payload, sizeof(encoded_payload));
-
-    write_to_scale_characteristic(encoded_payload, sizeof(encoded_payload));
 }
 void Acaia::send_setting_change(uint8_t item, uint8_t value) {
     ESP_LOGD(TAG, "Sending setting change, item %u value %u", item, value);

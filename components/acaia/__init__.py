@@ -15,7 +15,6 @@ AcaiaTareAction = acaia_ns.class_("AcaiaTareAction", automation.Action)
 AcaiaResetTimerAction = acaia_ns.class_("AcaiaResetTimerAction", automation.Action)
 AcaiaStartTimerAction = acaia_ns.class_("AcaiaStartTimerAction", automation.Action)
 AcaiaStopTimerAction = acaia_ns.class_("AcaiaStopTimerAction", automation.Action)
-AcaiaRefreshSettingsAction = acaia_ns.class_("AcaiaRefreshSettingsAction", automation.Action)
 AcaiaSetUnitAction = acaia_ns.class_("AcaiaSetUnitAction", automation.Action)
 AcaiaSetSleepAction = acaia_ns.class_("AcaiaSetSleepAction", automation.Action)
 AcaiaSetSoundAction = acaia_ns.class_("AcaiaSetSoundAction", automation.Action)
@@ -76,8 +75,6 @@ ACAIA_ACTION_NO_ARG_SCHEMA = maybe_simple_id(
 @automation.register_action("acaia.start_timer", AcaiaStartTimerAction, ACAIA_ACTION_NO_ARG_SCHEMA,
     synchronous=True,)
 @automation.register_action("acaia.stop_timer", AcaiaStopTimerAction, ACAIA_ACTION_NO_ARG_SCHEMA,
-    synchronous=True,)
-@automation.register_action("acaia.refresh_settings", AcaiaRefreshSettingsAction, ACAIA_ACTION_NO_ARG_SCHEMA,
     synchronous=True,)
 async def no_arg_action(config, action_id, template_arg, args):
     paren = await cg.get_variable(config[CONF_ID])
