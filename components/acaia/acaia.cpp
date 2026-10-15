@@ -22,6 +22,10 @@ constexpr uint8_t ACAIA_MESSAGE_TYPE_NOTIFICATION_REQUEST = 12;
 constexpr uint8_t ACAIA_MESSAGE_TYPE_HEARTBEAT = 0;
 constexpr uint8_t ACAIA_MESSAGE_TYPE_TARE = 4;
 constexpr uint8_t ACAIA_MESSAGE_TYPE_TIMER_MANIPULATION = 13;
+constexpr uint8_t ACAIA_EVENT_WEIGHT = 0x05;
+constexpr uint8_t ACAIA_EVENT_TIMER = 0x07;
+constexpr uint8_t ACAIA_EVENT_BUTTON = 0x08;
+constexpr uint8_t ACAIA_EVENT_HEARTBEAT = 0x0B;
 constexpr uint8_t ACAIA_MESSAGE_TYPE_GET_SETTINGS = 6;
 constexpr uint8_t SETTINGS_UNIT_GRAMS = 2;
 constexpr uint8_t SETTINGS_UNIT_OUNCES = 5;
@@ -181,7 +185,7 @@ void Acaia::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_
                     message.timer_running = timer_running_;
 
                     switch (message_type) {
-                        case 0x05: {
+                        case ACAIA_EVENT_WEIGHT: {
                             if (packet_len < 11) {
                                 ESP_LOGW(TAG, "Truncated weight message, ignoring.");
                                 break;
@@ -192,7 +196,7 @@ void Acaia::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_
 
                             break;
                         }
-                        case 0x07: {
+                        case ACAIA_EVENT_TIMER: {
                             if (packet_len < 8) {
                                 ESP_LOGW(TAG, "Truncated timer message, ignoring.");
                                 break;
@@ -203,7 +207,7 @@ void Acaia::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_
 
                             break;
                         }
-                        case 0x08: {
+                        case ACAIA_EVENT_BUTTON: {
                             message.type = AcaiaMessageType::tare_start_stop_reset;
 
                             if (packet_len < 7) {
@@ -246,7 +250,7 @@ void Acaia::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_
 
                             break;
                         }
-                        case 0x11: {
+                        case ACAIA_EVENT_HEARTBEAT: {
                             message.type = heartbeat;
                             if (packet_len < 8) {
                                 ESP_LOGW(TAG, "Truncated heartbeat message, ignoring.");
@@ -275,6 +279,8 @@ void Acaia::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_
                     }
 
                     send_message_to_handlers(message);
+                } else if (packet_type == 0x07) {
+                    // Pre-auth oddity frame; known-benign, ignore.
                 } else {
                     char hex[format_hex_pretty_size(PACKET_BUFFER_SIZE)];
                     ESP_LOGW(TAG, "Unknown packet type 0x%02X: %s", packet_type,
