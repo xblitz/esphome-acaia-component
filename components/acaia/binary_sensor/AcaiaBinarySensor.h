@@ -17,7 +17,7 @@ namespace esphome {
         class AcaiaBinarySensor
                 : public esphome::Component, public esphome::Parented<Acaia> {
         public:
-            void setup() {
+            void setup() override {
                 get_parent()->add_on_message_callback([this](AcaiaMessage msg) { this->handleMessage(msg); });
             }
 

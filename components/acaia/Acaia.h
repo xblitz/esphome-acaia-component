@@ -39,7 +39,7 @@ namespace esphome {
 
         class Acaia : public esphome::Component, public esphome::ble_client::BLEClientNode {
         public:
-            void gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_if, esp_ble_gattc_cb_param_t *param)
+            void gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_if, esp_ble_gattc_cb_param_t *param) override
             {
                 switch (event) {
                     case ESP_GATTC_CONNECT_EVT:
@@ -231,15 +231,6 @@ namespace esphome {
                     default:
                         ESP_LOGD(TAG, "GATTC Event incoming, type %u", event);
                 }
-            }
-
-            void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *param)
-            {
-            }
-
-            void loop()
-            {
-
             }
 
             void add_on_message_callback(std::function<void(AcaiaMessage)> callback) {

@@ -30,7 +30,7 @@ namespace esphome {
         class AcaiaSensor
                 : public esphome::Component, public esphome::Parented<Acaia> {
         public:
-            void setup() {
+            void setup() override {
                 flows.reserve(FLOW_MOVING_AVERAGE_SIZE - 1);
                 get_parent()->add_on_message_callback([this](AcaiaMessage msg) { this->handleMessage(msg); });
             }
