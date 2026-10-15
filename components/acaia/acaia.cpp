@@ -94,7 +94,6 @@ void Acaia::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_
             if (packet_buffer_head_ + param->notify.value_len >= PACKET_BUFFER_SIZE) {
                 ESP_LOGE(TAG, "Received packet would overflow the packet buffer. Flushing.");
                 packet_buffer_head_ = 0;
-                maybe_send_heartbeat();
                 break;
             }
             memcpy(packet_buffer_ + packet_buffer_head_, param->notify.value, param->notify.value_len);
@@ -229,8 +228,6 @@ void Acaia::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_
                 memmove(packet_buffer_, packet_buffer_ + packet_len, packet_buffer_head_);
             }
 
-            maybe_send_heartbeat();
-
             break;
         }
         case ESP_GATTC_CLOSE_EVT: {
@@ -320,9 +317,12 @@ float Acaia::decode_time(uint8_t minutes, uint8_t seconds, uint8_t tens) {
     return value + ((float)tens / 10.f);
 }
 
-void Acaia::maybe_send_heartbeat() {
-    if (esp_timer_get_time() - last_heartbeat_ > 1000*1000) {
-        send_heartbeat();
+void Acaia::loop() {
+    if (!this->connected_ || this->char_handle_ == 0) {
+        return;
+    }
+    if (esp_timer_get_time() - this->last_heartbeat_ > 1000 * 1000) {
+        this->send_heartbeat();
     }
 }
 

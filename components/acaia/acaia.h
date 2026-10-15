@@ -20,6 +20,7 @@ namespace esphome {
         class Acaia : public esphome::Component, public esphome::ble_client::BLEClientNode {
         public:
             void gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_if, esp_ble_gattc_cb_param_t *param) override;
+            void loop() override;
             void add_on_message_callback(std::function<void(AcaiaMessage)> callback);
             void dump_config() override;
             void send_tare();
@@ -31,7 +32,6 @@ namespace esphome {
             void send_message_to_handlers(AcaiaMessage message);
             float decode_weight(uint32_t raw, uint8_t unit, uint8_t signifier);
             float decode_time(uint8_t minutes, uint8_t seconds, uint8_t tens);
-            void maybe_send_heartbeat();
             void send_heartbeat();
             void ident();
             void notification_request();
