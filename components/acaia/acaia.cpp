@@ -229,6 +229,30 @@ void Acaia::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_
                                         timer_running_ = true;
                                         this->on_timer_start_callback_.call();
                                         break;
+                                    case 0x02:
+                                        message.has_mode = true;
+                                        message.mode = "Weighing";
+                                        break;
+                                    case 0x04:
+                                        message.has_mode = true;
+                                        message.mode = "Dual Display";
+                                        break;
+                                    case 0x03:
+                                        message.has_mode = true;
+                                        message.mode = "Droplet";
+                                        break;
+                                    case 0x0F:
+                                        message.has_mode = true;
+                                        message.mode = "Droplet and Square";
+                                        break;
+                                    case 0x10:
+                                        message.has_mode = true;
+                                        message.mode = "Triangle and Square";
+                                        break;
+                                    case 0x11:
+                                        message.has_mode = true;
+                                        message.mode = "Auto-Tare";
+                                        break;
                                     default: {
                                         char hex[format_hex_pretty_size(PACKET_BUFFER_SIZE)];
                                         ESP_LOGW(TAG, "[%s] Unknown button key %02X %02X: %s",

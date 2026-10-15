@@ -13,10 +13,12 @@ namespace esphome {
             void setup() override;
             void handle_message(AcaiaMessage message);
             void set_units(esphome::text_sensor::TextSensor *sens);
+            void set_mode(esphome::text_sensor::TextSensor *sens);
             void dump_config() override;
 
         protected:
             esphome::text_sensor::TextSensor *units_{nullptr};
+            esphome::text_sensor::TextSensor *mode_{nullptr};
         };
     }
 }

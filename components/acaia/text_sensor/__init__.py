@@ -8,6 +8,7 @@ from .. import acaia_ns, Acaia
 CONF_ACAIA_ID = "acaia_id"
 
 CONF_UNITS = "units"
+CONF_MODE = "mode"
 
 AcaiaTextSensor = acaia_ns.class_(
     "AcaiaTextSensor",
@@ -22,6 +23,7 @@ CONFIG_SCHEMA = cv.Schema(
         cv.Optional(CONF_UNITS): text_sensor.text_sensor_schema(
             icon=ICON_SCALE,
         ),
+        cv.Optional(CONF_MODE): text_sensor.text_sensor_schema(),
     }
 )
 
@@ -33,3 +35,7 @@ async def to_code(config):
     if units_config := config.get(CONF_UNITS):
         sens = await text_sensor.new_text_sensor(units_config)
         cg.add(var.set_units(sens))
+
+    if mode_config := config.get(CONF_MODE):
+        sens = await text_sensor.new_text_sensor(mode_config)
+        cg.add(var.set_mode(sens))

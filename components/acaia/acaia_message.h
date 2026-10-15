@@ -27,6 +27,9 @@ namespace esphome {
             bool has_units = false;
             std::string units;
 
+            bool has_mode = false;
+            std::string mode;
+
             bool has_auto_off = false;
             float auto_off;
 
