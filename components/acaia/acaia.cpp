@@ -39,6 +39,26 @@ constexpr uint8_t SETTINGS_UNIT_GRAMS = 2;
 constexpr uint8_t SETTINGS_UNIT_OUNCES = 5;
 constexpr float OUNCES_TO_GRAMS = 28.349523125f;
 
+// Mode key codes, shared by button announcements and settings byte 6.
+static const char *mode_name_for_key(uint8_t key) {
+    switch (key) {
+        case 0x02:
+            return "Weighing";
+        case 0x04:
+            return "Dual Display";
+        case 0x03:
+            return "Droplet";
+        case 0x0F:
+            return "Droplet and Square";
+        case 0x10:
+            return "Triangle and Square";
+        case 0x11:
+            return "Auto-Tare";
+        default:
+            return nullptr;
+    }
+}
+
 namespace esphome {
     namespace acaia {
 void Acaia::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_if, esp_ble_gattc_cb_param_t *param)
@@ -173,6 +193,16 @@ void Acaia::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_
                             message.units = units_code == SETTINGS_UNIT_OUNCES ? "oz" : "g";
                         } else {
                             ESP_LOGW(TAG, "[%s] Unknown weight unit code %u, keeping previous.", this->parent_->address_str(), units_code);
+                        }
+                    }
+                    if (packet_len >= 7) {
+                        const char *mode = mode_name_for_key(packet_buffer_[6]);
+                        if (mode != nullptr) {
+                            message.has_mode = true;
+                            message.mode = mode;
+                        } else {
+                            ESP_LOGW(TAG, "[%s] Unknown mode key %02X in settings, ignoring.",
+                                     this->parent_->address_str(), packet_buffer_[6]);
                         }
                     }
                     if (packet_len >= 10) {
@@ -506,28 +536,14 @@ void Acaia::handle_button_key(uint8_t key, AcaiaMessage &message, size_t packet_
             this->on_timer_reset_callback_.call();
             break;
         case 0x02:
-            message.has_mode = true;
-            message.mode = "Weighing";
-            break;
         case 0x04:
-            message.has_mode = true;
-            message.mode = "Dual Display";
-            break;
         case 0x03:
-            message.has_mode = true;
-            message.mode = "Droplet";
-            break;
         case 0x0F:
-            message.has_mode = true;
-            message.mode = "Droplet and Square";
-            break;
         case 0x10:
-            message.has_mode = true;
-            message.mode = "Triangle and Square";
-            break;
         case 0x11:
+            // Key is one of the known mode keys here; never null.
             message.has_mode = true;
-            message.mode = "Auto-Tare";
+            message.mode = mode_name_for_key(key);
             break;
         default: {
             char hex[format_hex_pretty_size(PACKET_BUFFER_SIZE)];
