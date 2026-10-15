@@ -116,6 +116,13 @@ void Acaia::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_
                 break;
             }
 
+            if (!verify_checksum(packet_len)) {
+                ESP_LOGW(TAG, "Checksum mismatch, discarding packet.");
+                packet_buffer_head_ = 0;
+                maybe_send_heartbeat();
+                break;
+            }
+
             auto packet_type = packet_buffer_[2];
 
             if (packet_type == PACKET_TYPE_SETTINGS) {
@@ -333,6 +340,21 @@ void Acaia::notification_request() {
     encode(ACAIA_MESSAGE_TYPE_NOTIFICATION_REQUEST, payload, sizeof(payload), encoded_buf, sizeof(encoded_buf));
 
     write_to_scale_characteristic(encoded_buf, sizeof(encoded_buf));
+}
+
+bool Acaia::verify_checksum(size_t packet_len) {
+    // Inverse of encode(): checksums cover the length byte through the end
+    // of the payload, split into even/odd index sums.
+    uint8_t cksum1 = 0;
+    uint8_t cksum2 = 0;
+    for (size_t i = 0; i < packet_len - 5; i++) {
+        if (i % 2 == 0) {
+            cksum1 += packet_buffer_[3 + i];
+        } else {
+            cksum2 += packet_buffer_[3 + i];
+        }
+    }
+    return cksum1 == packet_buffer_[packet_len - 2] && cksum2 == packet_buffer_[packet_len - 1];
 }
 
 size_t Acaia::encode(uint8_t message_type, uint8_t* in_buf, size_t len, uint8_t* out_buf, size_t out_buf_len)

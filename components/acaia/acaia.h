@@ -36,6 +36,7 @@ namespace esphome {
             void ident();
             void notification_request();
             size_t encode(uint8_t message_type, uint8_t* in_buf, size_t len, uint8_t* out_buf, size_t out_buf_len);
+            bool verify_checksum(size_t packet_len);
             void write_to_scale_characteristic(uint8_t* buf, size_t len);
 
             bool connected_ = false;
