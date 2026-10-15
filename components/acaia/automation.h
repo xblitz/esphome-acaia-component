@@ -55,19 +55,6 @@ namespace esphome {
             Acaia *acaia_;
         };
 
-        template<typename... Ts>
-        class AcaiaSetSleepAction : public Action<Ts...> {
-        public:
-            explicit AcaiaSetSleepAction(Acaia *acaia) : acaia_(acaia) {}
-
-            TEMPLATABLE_VALUE(int, minutes)
-
-            void play(const Ts &...x) override { acaia_->set_sleep(this->minutes_.value(x...)); }
-
-        protected:
-            Acaia *acaia_;
-        };
-
         class AcaiaTareTrigger : public Trigger<> {
         public:
             explicit AcaiaTareTrigger(Acaia *parent) {
