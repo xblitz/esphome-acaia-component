@@ -1,0 +1,86 @@
+# Example configuration for esphome-acaia-component.
+#
+# Replace the wifi credentials and the scale's MAC address (find it with an
+# esp32_ble_tracker scan while the scale is on), then compile and flash:
+#   esphome run example.yaml
+
+esphome:
+  name: acaia-example
+
+esp32:
+  variant: esp32c6
+  board: esp32-c6-devkitc-1
+  flash_size: 8MB
+
+wifi:
+  ssid: "YourSSID"
+  password: "YourPassword"
+
+logger:
+api:
+ota:
+  - platform: esphome
+
+external_components:
+  - source: github://xblitz/esphome-acaia-component
+    components: [acaia]
+
+esp32_ble_tracker:
+
+ble_client:
+  - id: ble_lunar
+    mac_address: "00:1C:97:1B:CD:B0"
+
+acaia:
+  - id: lunar
+    ble_client_id: ble_lunar
+    on_tare:
+      then:
+        - logger.log: "Lunar tare pressed"
+
+sensor:
+  - platform: acaia
+    acaia_id: lunar
+    weight:
+      name: "Lunar Weight"
+    flow:
+      name: "Lunar Flow"
+    timer:
+      name: "Lunar Timer"
+    battery:
+      name: "Lunar Battery"
+    auto_off:
+      name: "Lunar Auto-Off"
+
+binary_sensor:
+  - platform: acaia
+    acaia_id: lunar
+    connected:
+      name: "Lunar Connected"
+    timer_running:
+      name: "Lunar Timer Running"
+    beep:
+      name: "Lunar Beep"
+
+text_sensor:
+  - platform: acaia
+    acaia_id: lunar
+    units:
+      name: "Lunar Units"
+    mode:
+      name: "Lunar Mode"
+
+switch:
+  - platform: acaia
+    acaia_id: lunar
+    name: "Lunar Sound"
+
+select:
+  - platform: acaia
+    acaia_id: lunar
+    type: unit
+    name: "Lunar Unit"
+  - platform: acaia
+    acaia_id: lunar
+    type: sleep
+    name: "Lunar Sleep Timeout"

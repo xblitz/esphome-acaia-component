@@ -35,6 +35,8 @@ There are no release tags yet; to pin a build to an exact revision, append `@<co
 
 ## Configuration
 
+A complete working config is also shipped as [`example.yaml`](example.yaml).
+
 ### Minimal example
 
 ```yaml
