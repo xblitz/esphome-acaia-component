@@ -1,9 +1,24 @@
 import esphome.codegen as cg
 import esphome.config_validation as cv
 from esphome.components import sensor
-from esphome.const import CONF_ID, CONF_FLOW, CONF_WEIGHT, DEVICE_CLASS_BATTERY, DEVICE_CLASS_DURATION, DEVICE_CLASS_WEIGHT, ICON_BATTERY, ICON_SCALE, ICON_TIMER, ICON_WATER, STATE_CLASS_MEASUREMENT, UNIT_MINUTE, UNIT_PERCENT, UNIT_SECOND
+from esphome.const import (
+    CONF_FLOW,
+    CONF_ID,
+    CONF_WEIGHT,
+    DEVICE_CLASS_BATTERY,
+    DEVICE_CLASS_DURATION,
+    DEVICE_CLASS_WEIGHT,
+    ICON_BATTERY,
+    ICON_SCALE,
+    ICON_TIMER,
+    ICON_WATER,
+    STATE_CLASS_MEASUREMENT,
+    UNIT_MINUTE,
+    UNIT_PERCENT,
+    UNIT_SECOND,
+)
 
-from .. import acaia_ns, Acaia
+from .. import Acaia, acaia_ns
 
 CONF_ACAIA_ID = "acaia_id"
 
@@ -59,6 +74,7 @@ CONFIG_SCHEMA = cv.Schema(
         ),
     }
 )
+
 
 async def to_code(config):
     var = cg.new_Pvariable(config[CONF_ID])

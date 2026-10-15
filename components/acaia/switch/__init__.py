@@ -2,7 +2,7 @@ import esphome.codegen as cg
 import esphome.config_validation as cv
 from esphome.components import switch
 
-from .. import acaia_ns, Acaia
+from .. import Acaia, acaia_ns
 
 CONF_ACAIA_ID = "acaia_id"
 

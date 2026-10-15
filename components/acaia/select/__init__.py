@@ -3,7 +3,7 @@ import esphome.config_validation as cv
 from esphome.components import select
 from esphome.const import CONF_ID, CONF_TYPE
 
-from .. import acaia_ns, Acaia
+from .. import Acaia, acaia_ns
 
 CONF_ACAIA_ID = "acaia_id"
 

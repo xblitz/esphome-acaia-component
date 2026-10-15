@@ -27,11 +27,14 @@ CONF_ON_TIMER_START = "on_timer_start"
 CONF_ON_TIMER_STOP = "on_timer_stop"
 CONF_ON_TIMER_RESET = "on_timer_reset"
 
-CONFIG_SCHEMA = cv.Schema(
-    {
-        cv.GenerateID(): cv.declare_id(Acaia),
-    }
-).extend(ble_client.BLE_CLIENT_SCHEMA).extend(
+CONFIG_SCHEMA = (
+    cv.Schema(
+        {
+            cv.GenerateID(): cv.declare_id(Acaia),
+        }
+    )
+    .extend(ble_client.BLE_CLIENT_SCHEMA)
+    .extend(
         {
             cv.Optional(CONF_ON_TARE): automation.validate_automation(
                 {
@@ -55,6 +58,7 @@ CONFIG_SCHEMA = cv.Schema(
             ),
         }
     )
+)
 
 ACAIA_ACTION_NO_ARG_SCHEMA = maybe_simple_id(
     {
@@ -62,17 +66,35 @@ ACAIA_ACTION_NO_ARG_SCHEMA = maybe_simple_id(
     }
 )
 
-@automation.register_action("acaia.tare", AcaiaTareAction, ACAIA_ACTION_NO_ARG_SCHEMA,
-    synchronous=True,)
-@automation.register_action("acaia.reset_timer", AcaiaResetTimerAction, ACAIA_ACTION_NO_ARG_SCHEMA,
-    synchronous=True,)
-@automation.register_action("acaia.start_timer", AcaiaStartTimerAction, ACAIA_ACTION_NO_ARG_SCHEMA,
-    synchronous=True,)
-@automation.register_action("acaia.stop_timer", AcaiaStopTimerAction, ACAIA_ACTION_NO_ARG_SCHEMA,
-    synchronous=True,)
+
+@automation.register_action(
+    "acaia.tare",
+    AcaiaTareAction,
+    ACAIA_ACTION_NO_ARG_SCHEMA,
+    synchronous=True,
+)
+@automation.register_action(
+    "acaia.reset_timer",
+    AcaiaResetTimerAction,
+    ACAIA_ACTION_NO_ARG_SCHEMA,
+    synchronous=True,
+)
+@automation.register_action(
+    "acaia.start_timer",
+    AcaiaStartTimerAction,
+    ACAIA_ACTION_NO_ARG_SCHEMA,
+    synchronous=True,
+)
+@automation.register_action(
+    "acaia.stop_timer",
+    AcaiaStopTimerAction,
+    ACAIA_ACTION_NO_ARG_SCHEMA,
+    synchronous=True,
+)
 async def no_arg_action(config, action_id, template_arg, args):
     paren = await cg.get_variable(config[CONF_ID])
     return cg.new_Pvariable(action_id, template_arg, paren)
+
 
 async def to_code(config):
     var = cg.new_Pvariable(config[CONF_ID])

@@ -1,0 +1,3 @@
+# Ruff defaults (pyflakes + pycodestyle errors + import sorting) with a 120-column
+# limit to match the C++ style.
+line-length = 120

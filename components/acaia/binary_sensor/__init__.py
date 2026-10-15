@@ -3,7 +3,7 @@ import esphome.config_validation as cv
 from esphome.components import binary_sensor
 from esphome.const import CONF_ID, ICON_TIMER
 
-from .. import acaia_ns, Acaia
+from .. import Acaia, acaia_ns
 
 CONF_ACAIA_ID = "acaia_id"
 
@@ -30,6 +30,7 @@ CONFIG_SCHEMA = cv.Schema(
         cv.Optional(CONF_BEEP): binary_sensor.binary_sensor_schema(),
     }
 )
+
 
 async def to_code(config):
     var = cg.new_Pvariable(config[CONF_ID])
