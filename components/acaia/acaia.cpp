@@ -198,6 +198,9 @@ void Acaia::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_
         }
         case ESP_GATTC_CLOSE_EVT: {
             connected_ = false;
+            char_handle_ = 0;
+            last_heartbeat_ = 0;
+            packet_buffer_head_ = 0;
 
             AcaiaMessage message;
             message.timestamp = esp_timer_get_time();
