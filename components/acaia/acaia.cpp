@@ -32,8 +32,6 @@ void Acaia::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_
         break;
         case ESP_GATTC_OPEN_EVT: {
             ESP_LOGD(TAG, "ESP_GATTC_OPEN_EVT");
-            conn_id_ = param->open.conn_id;
-
             connected_ = true;
 
             AcaiaMessage message;
@@ -76,7 +74,7 @@ void Acaia::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_
 
             uint16_t notify_en = 1;
             esp_err_t status =
-                    esp_ble_gattc_write_char_descr(this->parent_->get_gattc_if(), this->conn_id_, chr->handle, sizeof(notify_en),
+                    esp_ble_gattc_write_char_descr(this->parent_->get_gattc_if(), this->parent_->get_conn_id(), chr->handle, sizeof(notify_en),
                                                    (uint8_t *) &notify_en, ESP_GATT_WRITE_TYPE_RSP, ESP_GATT_AUTH_REQ_NONE);
             if (status) {
                 ESP_LOGW(TAG, "esp_ble_gattc_write_char_descr error, status=%d", status);

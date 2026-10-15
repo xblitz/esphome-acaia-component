@@ -40,12 +40,10 @@ namespace esphome {
 
             bool connected_ = false;
 
-            uint16_t conn_id_;
+            uint16_t char_handle_ = 0;
+            uint64_t last_heartbeat_ = 0;
 
-            uint16_t char_handle_;
-            uint64_t last_heartbeat_;
-
-            uint8_t packet_buffer_[PACKET_BUFFER_SIZE];
+            uint8_t packet_buffer_[PACKET_BUFFER_SIZE]{};
             uint16_t packet_buffer_head_ = 0;
 
             CallbackManager<void(AcaiaMessage)> on_message_callback_;
