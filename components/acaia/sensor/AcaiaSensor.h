@@ -13,7 +13,7 @@
 #include "../Acaia.h"
 #include "../AcaiaMessage.h"
 
-#define FLOW_MOVING_AVERAGE_SIZE 20
+constexpr size_t FLOW_MOVING_AVERAGE_SIZE = 20;
 
 namespace esphome {
     namespace acaia {

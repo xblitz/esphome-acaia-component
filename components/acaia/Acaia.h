@@ -14,22 +14,22 @@
 #include <cmath>
 #include "AcaiaMessage.h"
 
-#define SCALE_SERVICE_UUID "00001820-0000-1000-8000-00805f9b34fb"
-#define SCALE_CHARACTERISTIC_UUID "00002a80-0000-1000-8000-00805f9b34fb"
+constexpr const char *SCALE_SERVICE_UUID = "00001820-0000-1000-8000-00805f9b34fb";
+constexpr const char *SCALE_CHARACTERISTIC_UUID = "00002a80-0000-1000-8000-00805f9b34fb";
 
-#define MAGIC1 0xef
-#define MAGIC2 0xdd
+constexpr uint8_t MAGIC1 = 0xef;
+constexpr uint8_t MAGIC2 = 0xdd;
 
-#define PACKET_TYPE_MESSAGE 0x0c
-#define PACKET_TYPE_SETTINGS 0x08
+constexpr uint8_t PACKET_TYPE_MESSAGE = 0x0c;
+constexpr uint8_t PACKET_TYPE_SETTINGS = 0x08;
 
-#define PACKET_BUFFER_SIZE 64
+constexpr size_t PACKET_BUFFER_SIZE = 64;
 
-#define ACAIA_MESSAGE_TYPE_IDENT 11
-#define ACAIA_MESSAGE_TYPE_NOTIFICATION_REQUEST 12
-#define ACAIA_MESSAGE_TYPE_HEARTBEAT 0
-#define ACAIA_MESSAGE_TYPE_TARE 4
-#define ACAIA_MESSAGE_TYPE_TIMER_MANIPULATION 13
+constexpr uint8_t ACAIA_MESSAGE_TYPE_IDENT = 11;
+constexpr uint8_t ACAIA_MESSAGE_TYPE_NOTIFICATION_REQUEST = 12;
+constexpr uint8_t ACAIA_MESSAGE_TYPE_HEARTBEAT = 0;
+constexpr uint8_t ACAIA_MESSAGE_TYPE_TARE = 4;
+constexpr uint8_t ACAIA_MESSAGE_TYPE_TIMER_MANIPULATION = 13;
 
 namespace esphome {
     namespace acaia {
