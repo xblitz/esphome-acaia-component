@@ -1,9 +1,7 @@
+#pragma once
 //
 // Created by Magnus Nordlander on 2023-10-31.
 //
-
-#ifndef ESPHOME_BIANCA_AUTOMATION_H
-#define ESPHOME_BIANCA_AUTOMATION_H
 
 #include "esphome/core/component.h"
 #include "esphome/core/automation.h"
@@ -56,5 +54,3 @@ namespace esphome {
         };
     }
 }
-
-#endif //ESPHOME_BIANCA_AUTOMATION_H

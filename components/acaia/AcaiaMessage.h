@@ -1,9 +1,7 @@
+#pragma once
 //
 // Created by Magnus Nordlander on 2023-10-25.
 //
-
-#ifndef SMART_LCC_ACAIAMESSAGE_H
-#define SMART_LCC_ACAIAMESSAGE_H
 
 #include <cstdint>
 
@@ -30,5 +28,3 @@ namespace esphome {
         };
     }
 }
-
-#endif //SMART_LCC_ACAIAMESSAGE_H

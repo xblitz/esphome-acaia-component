@@ -1,9 +1,7 @@
+#pragma once
 //
 // Created by Magnus Nordlander on 2023-10-26.
 //
-
-#ifndef SMART_LCC_ACAIASENSOR_H
-#define SMART_LCC_ACAIASENSOR_H
 
 #include <cmath>
 #include <deque>
@@ -36,7 +34,6 @@ namespace esphome {
             }
 
             void handleMessage(AcaiaMessage message) {
-                //ESP_LOGD("ACAIA", "Handling message");
                 if (message.has_weight) {
                     weightHistory.emplace_back(message.timestamp, message.weight);
 
@@ -60,7 +57,6 @@ namespace esphome {
 
             float calculateAvgFlow()
             {
-                //ESP_LOGD(TAG, "Clearing flows");
                 flows.clear();
                 int64_t now = esp_timer_get_time();
 
@@ -76,7 +72,6 @@ namespace esphome {
                     float weightDiff = curr.weight - prev.weight;
 
                     if (fabs(weightDiff) < 20 && timeDiffS >= 0.25 && timeDiffS < 0.35) {
-                        //ESP_LOGD(TAG, "Pushing flow: %.1f, WD: %.2f, TD: %.3f", weightDiff / timeDiffS, weightDiff, timeDiffS);
                         flows.push_back(weightDiff / timeDiffS);
                     }
                 }
@@ -109,5 +104,3 @@ namespace esphome {
         };
     }
 }
-
-#endif //SMART_LCC_ACAIASENSOR_H

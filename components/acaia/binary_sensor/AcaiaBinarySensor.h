@@ -1,9 +1,7 @@
+#pragma once
 //
 // Created by Magnus Nordlander on 2023-10-31.
 //
-
-#ifndef ESPHOME_BIANCA_ACAIABINARYSENSOR_H
-#define ESPHOME_BIANCA_ACAIABINARYSENSOR_H
 
 #include "esphome/core/defines.h"
 #include "esphome/core/component.h"
@@ -33,5 +31,3 @@ namespace esphome {
         };
     }
 }
-
-#endif //ESPHOME_BIANCA_ACAIABINARYSENSOR_H

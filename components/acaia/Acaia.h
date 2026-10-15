@@ -1,9 +1,7 @@
+#pragma once
 //
 // Created by Magnus Nordlander on 2023-10-24.
 //
-
-#ifndef SMART_LCC_ACAIA_H
-#define SMART_LCC_ACAIA_H
 
 #include "esphome/core/log.h"
 #include "esphome/core/component.h"
@@ -66,7 +64,7 @@ namespace esphome {
                                 esphome::esp32_ble::ESPBTUUID::from_raw(SCALE_CHARACTERISTIC_UUID)
                         );
                         if (chr == nullptr) {
-                            ESP_LOGW(TAG, "No control service found at device, not an Anova..?");
+                            ESP_LOGW(TAG, "Scale service not found on device, is it an Acaia scale?");
                             break;
                         }
                         this->char_handle_ = chr->handle;
@@ -97,9 +95,7 @@ namespace esphome {
                             ESP_LOGW(TAG, "esp_ble_gattc_write_char_descr error, status=%d", status);
                         }
 
-//                        this->node_state = espbt::ClientState::ESTABLISHED;
                         ident();
-//                        vTaskDelay(pdMS_TO_TICKS(100));
                         notificationRequest();
                         last_heartbeat = esp_timer_get_time();
                         break;
@@ -124,7 +120,6 @@ namespace esphome {
                         }
 
                         if (packetBufferHead < 4) {
-                            //ESP_LOGD(TAG, "Packet is as of yet incomplete, continuing.");
                             maybeSendHeartbeat();
                             break;
                         }
@@ -132,13 +127,11 @@ namespace esphome {
                         auto packetLen = packetBuffer[3] + 5;
 
                         if (packetBufferHead < packetLen) {
-                           // ESP_LOGD(TAG, "Packet is as of yet incomplete, continuing.");
                             maybeSendHeartbeat();
                             break;
                         }
 
                         auto packetType = packetBuffer[2];
-                       // ESP_LOGD(TAG, "Complete packet received. Type: %x", packetType);
 
                         if (packetType == PACKET_TYPE_SETTINGS) {
                             // Settings
@@ -285,30 +278,6 @@ namespace esphome {
         protected:
             void sendMessageToHandlers(AcaiaMessage message) {
                 this->on_message_callback_.call(message);
-/*
-                switch(message.type) {
-                    case weight:
-                        ESP_LOGI(TAG, "Weight: %.2f", message.weight);
-                        break;
-                    case timer:
-                        ESP_LOGI(TAG, "Time: %.2f", message.time);
-                        break;
-                    case heartbeat:
-                        if (message.has_weight) {
-                            ESP_LOGI(TAG, "Heartbeat, weight: %.2f", message.weight);
-                        } else {
-                            ESP_LOGI(TAG, "Heartbeat, time: %.2f", message.time);
-                        }
-                        break;
-                    case tare_start_stop_reset:
-                        if (message.has_weight && message.has_time) {
-                            ESP_LOGI(TAG, "Button %x, weight: %.2f, time: %.2f", message.button, message.weight, message.time);
-                        } else if (message.has_weight) {
-                            ESP_LOGI(TAG, "Button %x, weight: %.2f", message.button, message.weight);
-                        } else {
-                            ESP_LOGI(TAG, "Button %x, time: %.2f", message.button, message.time);
-                        }
-                }*/
             }
 
             float decodeWeight(uint32_t raw, uint8_t unit, uint8_t signifier) {
@@ -427,5 +396,3 @@ namespace esphome {
         };
     }
 }
-
-#endif //SMART_LCC_ACAIA_H
