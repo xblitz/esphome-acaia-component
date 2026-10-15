@@ -22,6 +22,9 @@ constexpr uint8_t ACAIA_MESSAGE_TYPE_NOTIFICATION_REQUEST = 12;
 constexpr uint8_t ACAIA_MESSAGE_TYPE_HEARTBEAT = 0;
 constexpr uint8_t ACAIA_MESSAGE_TYPE_TARE = 4;
 constexpr uint8_t ACAIA_MESSAGE_TYPE_TIMER_MANIPULATION = 13;
+constexpr uint8_t SETTINGS_UNIT_GRAMS = 2;
+constexpr uint8_t SETTINGS_UNIT_OUNCES = 5;
+constexpr float OUNCES_TO_GRAMS = 28.349523125f;
 
 namespace esphome {
     namespace acaia {
@@ -145,6 +148,17 @@ void Acaia::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_
                     message.timer_running = timer_running_;
                     message.has_battery = true;
                     message.battery = packet_buffer_[4] & 0x7F;
+                    if (packet_len >= 6) {
+                        const uint8_t units_code = packet_buffer_[5];
+                        if (units_code == SETTINGS_UNIT_GRAMS || units_code == SETTINGS_UNIT_OUNCES) {
+                            weight_units_ = units_code == SETTINGS_UNIT_OUNCES ? WeightUnits::OUNCES
+                                                                              : WeightUnits::GRAMS;
+                            message.has_units = true;
+                            message.units = units_code == SETTINGS_UNIT_OUNCES ? "oz" : "g";
+                        } else {
+                            ESP_LOGW(TAG, "Unknown weight unit code %u, keeping previous.", units_code);
+                        }
+                    }
                     ESP_LOGI(TAG, "Settings packet, battery %d%%", (int) message.battery);
                     send_message_to_handlers(message);
                 } else if (packet_type == PACKET_TYPE_MESSAGE) {
@@ -250,6 +264,7 @@ void Acaia::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_
         }
         case ESP_GATTC_CLOSE_EVT: {
             connected_ = false;
+            weight_units_ = WeightUnits::GRAMS;
             timer_running_ = false;
             char_handle_ = 0;
             last_heartbeat_ = 0;
@@ -338,6 +353,9 @@ void Acaia::stop_timer() {
 }
 
 void Acaia::send_message_to_handlers(AcaiaMessage message) {
+    if (message.has_weight && this->weight_units_ == WeightUnits::OUNCES) {
+        message.weight *= OUNCES_TO_GRAMS;
+    }
     this->on_message_callback_.call(message);
 }
 

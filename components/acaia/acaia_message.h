@@ -4,6 +4,7 @@
 //
 
 #include <cstdint>
+#include <string>
 
 namespace esphome {
     namespace acaia {
@@ -22,6 +23,9 @@ namespace esphome {
 
             bool has_battery = false;
             float battery;
+
+            bool has_units = false;
+            std::string units;
 
             AcaiaButton button = tare;
 
