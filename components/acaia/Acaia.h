@@ -230,6 +230,11 @@ namespace esphome {
                 this->on_message_callback_.add(std::move(callback));
             }
 
+            void dump_config() override {
+                ESP_LOGCONFIG(TAG, "Acaia Scale:");
+                ESP_LOGCONFIG(TAG, "  BLE Client Address: %s", this->parent_->address_str());
+            }
+
 
             void sendTare() {
                 ESP_LOGD(TAG, "Sending Tare");

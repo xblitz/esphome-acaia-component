@@ -95,6 +95,11 @@ namespace esphome {
 
             void set_weight(esphome::sensor::Sensor *sens) { weight_ = sens; }
             void set_flow(esphome::sensor::Sensor *sens) { flow_ = sens; }
+
+            void dump_config() override {
+                LOG_SENSOR("  ", "Weight", this->weight_);
+                LOG_SENSOR("  ", "Flow", this->flow_);
+            }
         protected:
             esphome::sensor::Sensor *weight_{nullptr};
             esphome::sensor::Sensor *flow_{nullptr};

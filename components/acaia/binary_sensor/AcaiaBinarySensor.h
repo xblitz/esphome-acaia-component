@@ -26,6 +26,10 @@ namespace esphome {
             }
 
             void set_connected(esphome::binary_sensor::BinarySensor *sens) { connected_ = sens; }
+
+            void dump_config() override {
+                LOG_BINARY_SENSOR("  ", "Connected", this->connected_);
+            }
         protected:
             esphome::binary_sensor::BinarySensor *connected_{nullptr};
         };

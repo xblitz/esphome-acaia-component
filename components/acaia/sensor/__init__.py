@@ -1,7 +1,7 @@
 import esphome.codegen as cg
 import esphome.config_validation as cv
 from esphome.components import sensor
-from esphome.const import CONF_ID, CONF_FLOW, CONF_WEIGHT, ICON_SCALE, ICON_WATER, STATE_CLASS_MEASUREMENT
+from esphome.const import CONF_ID, CONF_FLOW, CONF_WEIGHT, DEVICE_CLASS_WEIGHT, ICON_SCALE, ICON_WATER, STATE_CLASS_MEASUREMENT
 
 from .. import acaia_ns, Acaia
 
@@ -24,6 +24,7 @@ CONFIG_SCHEMA = cv.Schema(
             unit_of_measurement=UNIT_GRAM,
             icon=ICON_SCALE,
             accuracy_decimals=1,
+            device_class=DEVICE_CLASS_WEIGHT,
             state_class=STATE_CLASS_MEASUREMENT,
         ),
         cv.Optional(CONF_FLOW): sensor.sensor_schema(
