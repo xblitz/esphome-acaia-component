@@ -1,5 +1,6 @@
 #include "acaia.h"
 
+#include "esphome/components/esp32_ble_tracker/esp32_ble_tracker.h"
 #include "esphome/core/log.h"
 
 #include <esp_gattc_api.h>
@@ -54,10 +55,9 @@ void Acaia::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_
             }
             this->char_handle_ = chr->handle;
 
-            auto status = esp_ble_gattc_register_for_notify(this->parent_->get_gattc_if(), this->parent_->get_remote_bda(),
-                                                            chr->handle);
+            auto status = this->parent_->register_for_notify(chr->handle);
             if (status) {
-                ESP_LOGW(TAG, "esp_ble_gattc_register_for_notify failed, status=%d", status);
+                ESP_LOGW(TAG, "register_for_notify failed, status=%d", status);
             }
             break;
         }
@@ -83,6 +83,8 @@ void Acaia::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_
             ident();
             notification_request();
             last_heartbeat_ = esp_timer_get_time();
+            // Done with the parent's GATT cache; allow it to be released.
+            this->node_state = esphome::esp32_ble_tracker::ClientState::ESTABLISHED;
             break;
         }
         case ESP_GATTC_NOTIFY_EVT: {
