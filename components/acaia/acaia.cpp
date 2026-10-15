@@ -146,6 +146,9 @@ void Acaia::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_
                 auto packet_type = packet_buffer_[2];
 
                 if (packet_type == PACKET_TYPE_SETTINGS) {
+                    // Battery byte top bit mirrors the timer state.
+                    timer_running_ = (packet_buffer_[4] & 0x80) != 0;
+
                     AcaiaMessage message;
                     message.timestamp = esp_timer_get_time();
                     message.connected = connected_;
