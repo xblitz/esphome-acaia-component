@@ -214,18 +214,30 @@ void Acaia::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_
                                 ESP_LOGW(TAG, "[%s] Truncated button message, ignoring.", this->parent_->address_str());
                                 break;
                             }
-                            if (packet_buffer_[5] == 0x00 && packet_buffer_[6] == 0x05 && packet_len >= 13) {
-                                message.button = tare;
+                            const uint8_t key = packet_buffer_[5];
+                            const uint8_t tag = packet_buffer_[6];
+                            if (tag == 0x05 && packet_len >= 13) {
                                 message.has_weight = true;
                                 message.weight = decode_weight((packet_buffer_[9] << 16) | (packet_buffer_[8] << 8) | packet_buffer_[7], packet_buffer_[11], packet_buffer_[12]);
-                                this->on_tare_callback_.call();
-                            } else if (packet_buffer_[5] == 0x08 && packet_buffer_[6] == 0x05 && packet_len >= 13) {
-                                message.button = start;
-                                timer_running_ = true;
-                                message.has_weight = true;
-                                message.weight = decode_weight((packet_buffer_[9] << 16) | (packet_buffer_[8] << 8) | packet_buffer_[7], packet_buffer_[11], packet_buffer_[12]);
-                                this->on_timer_start_callback_.call();
-                            } else if (packet_buffer_[5] == 0x0a && packet_buffer_[6] == 0x07 && packet_len >= 17) {
+                                switch (key) {
+                                    case 0x00:
+                                        message.button = tare;
+                                        this->on_tare_callback_.call();
+                                        break;
+                                    case 0x08:
+                                        message.button = start;
+                                        timer_running_ = true;
+                                        this->on_timer_start_callback_.call();
+                                        break;
+                                    default: {
+                                        char hex[format_hex_pretty_size(PACKET_BUFFER_SIZE)];
+                                        ESP_LOGW(TAG, "[%s] Unknown button key %02X %02X: %s",
+                                                 this->parent_->address_str(), key, tag,
+                                                 format_hex_pretty_to(hex, packet_buffer_, packet_len));
+                                        break;
+                                    }
+                                }
+                            } else if (key == 0x0a && tag == 0x07 && packet_len >= 17) {
                                 message.button = stop;
                                 timer_running_ = false;
                                 message.has_weight = true;
@@ -233,7 +245,7 @@ void Acaia::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_
                                 message.has_time = true;
                                 message.time = decode_time(packet_buffer_[7], packet_buffer_[8], packet_buffer_[9]);
                                 this->on_timer_stop_callback_.call();
-                            } else if (packet_buffer_[5] == 0x09 && packet_buffer_[6] == 0x07 && packet_len >= 17) {
+                            } else if (key == 0x09 && tag == 0x07 && packet_len >= 17) {
                                 message.button = reset;
                                 timer_running_ = false;
                                 message.has_time = true;
@@ -243,8 +255,8 @@ void Acaia::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_
                                 this->on_timer_reset_callback_.call();
                             } else {
                                 char hex[format_hex_pretty_size(PACKET_BUFFER_SIZE)];
-                                ESP_LOGW(TAG, "[%s] Unknown button key %02X %02X: %s", this->parent_->address_str(), packet_buffer_[5],
-                                         packet_buffer_[6],
+                                ESP_LOGW(TAG, "[%s] Unknown button key %02X %02X: %s", this->parent_->address_str(), key,
+                                         tag,
                                          format_hex_pretty_to(hex, packet_buffer_, packet_len));
                             }
 
