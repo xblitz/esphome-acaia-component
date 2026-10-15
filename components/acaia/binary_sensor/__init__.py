@@ -5,7 +5,7 @@ from esphome.const import CONF_ID, UNIT_CELSIUS, UNIT_SECOND, ICON_RADIOACTIVE, 
 
 from .. import acaia_ns, Acaia
 
-CONF_ACAIA_ID = "pressensor_id"
+CONF_ACAIA_ID = "acaia_id"
 
 CONF_CONNECTED = "connected"
 

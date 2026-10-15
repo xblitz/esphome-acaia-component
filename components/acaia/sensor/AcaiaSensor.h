@@ -6,6 +6,8 @@
 #define SMART_LCC_ACAIASENSOR_H
 
 #include <cmath>
+#include <deque>
+#include <vector>
 #include "esphome/core/defines.h"
 #include "esphome/core/component.h"
 #include "esphome/components/sensor/sensor.h"

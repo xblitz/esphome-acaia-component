@@ -16,7 +16,7 @@ namespace esphome {
         public:
             explicit AcaiaTareAction(Acaia *acaia) : acaia_(acaia) {}
 
-            void play(Ts... x) override { acaia_->sendTare(); }
+            void play(const Ts &...x) override { acaia_->sendTare(); }
 
         protected:
             Acaia *acaia_;
@@ -27,7 +27,7 @@ namespace esphome {
         public:
             explicit AcaiaResetTimerAction(Acaia *acaia) : acaia_(acaia) {}
 
-            void play(Ts... x) override { acaia_->resetTimer(); }
+            void play(const Ts &...x) override { acaia_->resetTimer(); }
 
         protected:
             Acaia *acaia_;
@@ -38,7 +38,7 @@ namespace esphome {
         public:
             explicit AcaiaStartTimerAction(Acaia *acaia) : acaia_(acaia) {}
 
-            void play(Ts... x) override { acaia_->startTimer(); }
+            void play(const Ts &...x) override { acaia_->startTimer(); }
 
         protected:
             Acaia *acaia_;
@@ -49,7 +49,7 @@ namespace esphome {
         public:
             explicit AcaiaStopTimerAction(Acaia *acaia) : acaia_(acaia) {}
 
-            void play(Ts... x) override { acaia_->stopTimer(); }
+            void play(const Ts &...x) override { acaia_->stopTimer(); }
 
         protected:
             Acaia *acaia_;
