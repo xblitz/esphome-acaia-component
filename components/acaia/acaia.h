@@ -45,6 +45,8 @@ namespace esphome {
 
             bool connected_ = false;
 
+            bool timer_running_ = false;
+
             uint16_t char_handle_ = 0;
             uint64_t last_heartbeat_ = 0;
 

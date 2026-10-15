@@ -27,6 +27,9 @@ namespace esphome {
 
             bool connected = false;
 
+            bool has_timer_running = false;
+            bool timer_running = false;
+
             int64_t timestamp;
         };
     }

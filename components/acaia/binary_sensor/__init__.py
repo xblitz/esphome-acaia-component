@@ -1,13 +1,14 @@
 import esphome.codegen as cg
 import esphome.config_validation as cv
 from esphome.components import binary_sensor
-from esphome.const import CONF_ID
+from esphome.const import CONF_ID, ICON_TIMER
 
 from .. import acaia_ns, Acaia
 
 CONF_ACAIA_ID = "acaia_id"
 
 CONF_CONNECTED = "connected"
+CONF_TIMER_RUNNING = "timer_running"
 
 AcaiaBinarySensor = acaia_ns.class_(
     "AcaiaBinarySensor",
@@ -22,6 +23,9 @@ CONFIG_SCHEMA = cv.Schema(
         cv.Optional(CONF_CONNECTED): binary_sensor.binary_sensor_schema(
             icon="mdi:bluetooth-connect",
         ),
+        cv.Optional(CONF_TIMER_RUNNING): binary_sensor.binary_sensor_schema(
+            icon=ICON_TIMER,
+        ),
     }
 )
 
@@ -33,3 +37,7 @@ async def to_code(config):
     if connected_config := config.get(CONF_CONNECTED):
         sens = await binary_sensor.new_binary_sensor(connected_config)
         cg.add(var.set_connected(sens))
+
+    if timer_running_config := config.get(CONF_TIMER_RUNNING):
+        sens = await binary_sensor.new_binary_sensor(timer_running_config)
+        cg.add(var.set_timer_running(sens))

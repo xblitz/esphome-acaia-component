@@ -38,6 +38,8 @@ void Acaia::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_
             AcaiaMessage message;
             message.timestamp = esp_timer_get_time();
             message.connected = connected_;
+            message.has_timer_running = true;
+            message.timer_running = timer_running_;
             send_message_to_handlers(message);
 
             break;
@@ -139,6 +141,8 @@ void Acaia::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_
                     AcaiaMessage message;
                     message.timestamp = esp_timer_get_time();
                     message.connected = connected_;
+                    message.has_timer_running = true;
+                    message.timer_running = timer_running_;
                     message.has_battery = true;
                     message.battery = packet_buffer_[4] & 0x7F;
                     ESP_LOGI(TAG, "Settings packet, battery %d%%", (int) message.battery);
@@ -152,6 +156,8 @@ void Acaia::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_
                     message.timestamp = esp_timer_get_time();
 
                     message.connected = connected_;
+                    message.has_timer_running = true;
+                    message.timer_running = timer_running_;
 
                     switch (message_type) {
                         case 0x05: {
@@ -190,11 +196,13 @@ void Acaia::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_
                                 this->on_tare_callback_.call();
                             } else if (packet_buffer_[5] == 0x08 && packet_buffer_[6] == 0x05 && packet_len >= 13) {
                                 message.button = start;
+                                timer_running_ = true;
                                 message.has_weight = true;
                                 message.weight = decode_weight((packet_buffer_[9] << 16) | (packet_buffer_[8] << 8) | packet_buffer_[7], packet_buffer_[11], packet_buffer_[12]);
                                 this->on_timer_start_callback_.call();
                             } else if (packet_buffer_[5] == 0x0a && packet_buffer_[6] == 0x07 && packet_len >= 17) {
                                 message.button = stop;
+                                timer_running_ = false;
                                 message.has_weight = true;
                                 message.weight = decode_weight((packet_buffer_[13] << 16) | (packet_buffer_[12] << 8) | packet_buffer_[11], packet_buffer_[15], packet_buffer_[16]);
                                 message.has_time = true;
@@ -202,6 +210,7 @@ void Acaia::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_
                                 this->on_timer_stop_callback_.call();
                             } else if (packet_buffer_[5] == 0x09 && packet_buffer_[6] == 0x07 && packet_len >= 17) {
                                 message.button = reset;
+                                timer_running_ = false;
                                 message.has_time = true;
                                 message.time = decode_time(packet_buffer_[7], packet_buffer_[8], packet_buffer_[9]);
                                 message.has_weight = true;
@@ -241,6 +250,7 @@ void Acaia::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_
         }
         case ESP_GATTC_CLOSE_EVT: {
             connected_ = false;
+            timer_running_ = false;
             char_handle_ = 0;
             last_heartbeat_ = 0;
             packet_buffer_head_ = 0;
@@ -248,6 +258,8 @@ void Acaia::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_
             AcaiaMessage message;
             message.timestamp = esp_timer_get_time();
             message.connected = connected_;
+            message.has_timer_running = true;
+            message.timer_running = timer_running_;
             send_message_to_handlers(message);
 
             break;
@@ -291,6 +303,7 @@ void Acaia::send_tare() {
 
 void Acaia::reset_timer() {
     ESP_LOGD(TAG, "Resetting timer");
+    timer_running_ = false;
     uint8_t payload[] = {0x00, 0x01};
 
     uint8_t encoded_payload[sizeof(payload) + 5];
@@ -302,6 +315,7 @@ void Acaia::reset_timer() {
 
 void Acaia::start_timer() {
     ESP_LOGD(TAG, "Starting timer");
+    timer_running_ = true;
     uint8_t payload[] = {0x00, 0x00};
 
     uint8_t encoded_payload[sizeof(payload) + 5];
@@ -313,6 +327,7 @@ void Acaia::start_timer() {
 
 void Acaia::stop_timer() {
     ESP_LOGD(TAG, "Stopping timer");
+    timer_running_ = false;
     uint8_t payload[] = {0x00, 0x02};
 
     uint8_t encoded_payload[sizeof(payload) + 5];
