@@ -31,7 +31,7 @@ external_components:
     components: [acaia]
 ```
 
-There are no release tags yet; to pin a build to an exact revision, append `@<commit-sha>` to the source.
+Pin to a release (e.g. `@v0.1.0`) so later changes on `main` never alter your build.
 
 ## Configuration
 

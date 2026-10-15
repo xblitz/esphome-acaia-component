@@ -5,7 +5,7 @@ from esphome.automation import maybe_simple_id
 from esphome.components import ble_client
 from esphome.const import CONF_ID, CONF_TRIGGER_ID
 
-CODEOWNERS = ["@magnusnordlander"]
+CODEOWNERS = ["@xblitz"]
 MULTI_CONF = True
 acaia_ns = cg.esphome_ns.namespace("esphome::acaia")
 
