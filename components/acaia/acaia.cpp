@@ -60,14 +60,14 @@ void Acaia::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_
                     esphome::esp32_ble::ESPBTUUID::from_raw(SCALE_CHARACTERISTIC_UUID)
             );
             if (chr == nullptr) {
-                ESP_LOGW(TAG, "Scale service not found on device, is it an Acaia scale?");
+                ESP_LOGW(TAG, "[%s] Scale service not found on device, is it an Acaia scale?", this->parent_->address_str());
                 break;
             }
             this->char_handle_ = chr->handle;
 
             auto status = this->parent_->register_for_notify(chr->handle);
             if (status) {
-                ESP_LOGW(TAG, "register_for_notify failed, status=%d", status);
+                ESP_LOGW(TAG, "[%s] register_for_notify failed, status=%d", this->parent_->address_str(), status);
             }
             break;
         }
@@ -78,7 +78,7 @@ void Acaia::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_
                     this->char_handle_
             );
             if (chr == nullptr) {
-                ESP_LOGW(TAG, "No client config descriptor found");
+                ESP_LOGW(TAG, "[%s] No client config descriptor found", this->parent_->address_str());
                 break;
             }
 
@@ -87,7 +87,7 @@ void Acaia::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_
                     esp_ble_gattc_write_char_descr(this->parent_->get_gattc_if(), this->parent_->get_conn_id(), chr->handle, sizeof(notify_en),
                                                    (uint8_t *) &notify_en, ESP_GATT_WRITE_TYPE_RSP, ESP_GATT_AUTH_REQ_NONE);
             if (status) {
-                ESP_LOGW(TAG, "esp_ble_gattc_write_char_descr error, status=%d", status);
+                ESP_LOGW(TAG, "[%s] esp_ble_gattc_write_char_descr error, status=%d", this->parent_->address_str(), status);
             }
 
             ident();
@@ -102,7 +102,7 @@ void Acaia::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_
                 break;
 
             if (packet_buffer_head_ + param->notify.value_len >= PACKET_BUFFER_SIZE) {
-                ESP_LOGE(TAG, "Received packet would overflow the packet buffer. Flushing.");
+                ESP_LOGE(TAG, "[%s] Received packet would overflow the packet buffer. Flushing.", this->parent_->address_str());
                 packet_buffer_head_ = 0;
                 break;
             }
@@ -116,7 +116,7 @@ void Acaia::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_
                 }
 
                 if (packet_buffer_[0] != MAGIC1 || packet_buffer_[1] != MAGIC2) {
-                    ESP_LOGW(TAG, "Packet doesn't start with the magic numbers. Flushing.");
+                    ESP_LOGW(TAG, "[%s] Packet doesn't start with the magic numbers. Flushing.", this->parent_->address_str());
                     packet_buffer_head_ = 0;
                     break;
                 }
@@ -128,7 +128,7 @@ void Acaia::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_
                 auto packet_len = packet_buffer_[3] + 5;
 
                 if (packet_len > PACKET_BUFFER_SIZE) {
-                    ESP_LOGW(TAG, "Impossible packet length %d, flushing.", packet_len);
+                    ESP_LOGW(TAG, "[%s] Impossible packet length %d, flushing.", this->parent_->address_str(), packet_len);
                     packet_buffer_head_ = 0;
                     break;
                 }
@@ -138,7 +138,7 @@ void Acaia::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_
                 }
 
                 if (!verify_checksum(packet_len)) {
-                    ESP_LOGW(TAG, "Checksum mismatch, discarding packet.");
+                    ESP_LOGW(TAG, "[%s] Checksum mismatch, discarding packet.", this->parent_->address_str());
                     packet_buffer_head_ = 0;
                     break;
                 }
@@ -161,7 +161,7 @@ void Acaia::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_
                             message.has_units = true;
                             message.units = units_code == SETTINGS_UNIT_OUNCES ? "oz" : "g";
                         } else {
-                            ESP_LOGW(TAG, "Unknown weight unit code %u, keeping previous.", units_code);
+                            ESP_LOGW(TAG, "[%s] Unknown weight unit code %u, keeping previous.", this->parent_->address_str(), units_code);
                         }
                     }
                     if (packet_len >= 10) {
@@ -187,7 +187,7 @@ void Acaia::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_
                     switch (message_type) {
                         case ACAIA_EVENT_WEIGHT: {
                             if (packet_len < 11) {
-                                ESP_LOGW(TAG, "Truncated weight message, ignoring.");
+                                ESP_LOGW(TAG, "[%s] Truncated weight message, ignoring.", this->parent_->address_str());
                                 break;
                             }
                             message.type = AcaiaMessageType::weight;
@@ -198,7 +198,7 @@ void Acaia::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_
                         }
                         case ACAIA_EVENT_TIMER: {
                             if (packet_len < 8) {
-                                ESP_LOGW(TAG, "Truncated timer message, ignoring.");
+                                ESP_LOGW(TAG, "[%s] Truncated timer message, ignoring.", this->parent_->address_str());
                                 break;
                             }
                             message.type = AcaiaMessageType::timer;
@@ -211,7 +211,7 @@ void Acaia::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_
                             message.type = AcaiaMessageType::tare_start_stop_reset;
 
                             if (packet_len < 7) {
-                                ESP_LOGW(TAG, "Truncated button message, ignoring.");
+                                ESP_LOGW(TAG, "[%s] Truncated button message, ignoring.", this->parent_->address_str());
                                 break;
                             }
                             if (packet_buffer_[5] == 0x00 && packet_buffer_[6] == 0x05 && packet_len >= 13) {
@@ -243,7 +243,7 @@ void Acaia::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_
                                 this->on_timer_reset_callback_.call();
                             } else {
                                 char hex[format_hex_pretty_size(PACKET_BUFFER_SIZE)];
-                                ESP_LOGW(TAG, "Unknown button key %02X %02X: %s", packet_buffer_[5],
+                                ESP_LOGW(TAG, "[%s] Unknown button key %02X %02X: %s", this->parent_->address_str(), packet_buffer_[5],
                                          packet_buffer_[6],
                                          format_hex_pretty_to(hex, packet_buffer_, packet_len));
                             }
@@ -253,7 +253,7 @@ void Acaia::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_
                         case ACAIA_EVENT_HEARTBEAT: {
                             message.type = heartbeat;
                             if (packet_len < 8) {
-                                ESP_LOGW(TAG, "Truncated heartbeat message, ignoring.");
+                                ESP_LOGW(TAG, "[%s] Truncated heartbeat message, ignoring.", this->parent_->address_str());
                                 break;
                             }
                             if (packet_buffer_[7] == 0x05 && packet_len >= 14) {
@@ -264,7 +264,7 @@ void Acaia::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_
                                 message.time = decode_time(packet_buffer_[8], packet_buffer_[9], packet_buffer_[10]);
                             } else {
                                 char hex[format_hex_pretty_size(PACKET_BUFFER_SIZE)];
-                                ESP_LOGW(TAG, "Unknown heartbeat content %02X: %s", packet_buffer_[7],
+                                ESP_LOGW(TAG, "[%s] Unknown heartbeat content %02X: %s", this->parent_->address_str(), packet_buffer_[7],
                                          format_hex_pretty_to(hex, packet_buffer_, packet_len));
                             }
 
@@ -272,7 +272,7 @@ void Acaia::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_
                         }
                         default: {
                             char hex[format_hex_pretty_size(PACKET_BUFFER_SIZE)];
-                            ESP_LOGW(TAG, "Unknown message type 0x%02X: %s", message_type,
+                            ESP_LOGW(TAG, "[%s] Unknown message type 0x%02X: %s", this->parent_->address_str(), message_type,
                                      format_hex_pretty_to(hex, packet_buffer_, packet_len));
                             break;
                         }
@@ -283,7 +283,7 @@ void Acaia::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_
                     // Pre-auth oddity frame; known-benign, ignore.
                 } else {
                     char hex[format_hex_pretty_size(PACKET_BUFFER_SIZE)];
-                    ESP_LOGW(TAG, "Unknown packet type 0x%02X: %s", packet_type,
+                    ESP_LOGW(TAG, "[%s] Unknown packet type 0x%02X: %s", this->parent_->address_str(), packet_type,
                              format_hex_pretty_to(hex, packet_buffer_, packet_len));
                 }
 
@@ -487,7 +487,7 @@ bool Acaia::verify_checksum(size_t packet_len) {
 size_t Acaia::encode(uint8_t message_type, uint8_t* in_buf, size_t len, uint8_t* out_buf, size_t out_buf_len)
 {
     if (out_buf_len < len + 5) {
-        ESP_LOGE(TAG, "Invalid size on output buffer for encoding message of type %u", message_type);
+        ESP_LOGE(TAG, "[%s] Invalid size on output buffer for encoding message of type %u", this->parent_->address_str(), message_type);
         return 0;
     }
 
