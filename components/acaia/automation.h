@@ -5,7 +5,7 @@
 
 #include "esphome/core/component.h"
 #include "esphome/core/automation.h"
-#include "Acaia.h"
+#include "acaia.h"
 
 namespace esphome {
     namespace acaia {
