@@ -239,11 +239,6 @@ void Acaia::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_
                             message.type = AcaiaMessageType::weight;
                             message.has_weight = true;
                             message.weight = decode_weight((packet_buffer_[7] << 16) | (packet_buffer_[6] << 8) | packet_buffer_[5], packet_buffer_[9], packet_buffer_[10]);
-                            // TEMP-DIAG: correlate weight-record byte 3 with flow; remove after the flow fix.
-                            if (packet_buffer_[8] != 0x00) {
-                                ESP_LOGD(TAG, "[%s] Weight byte3=%02X weight=%.2f", this->parent_->address_str(),
-                                         packet_buffer_[8], message.weight);
-                            }
                             parse_record_chain(11, packet_len - 2, message);
 
                             break;
@@ -490,11 +485,6 @@ void Acaia::parse_record_chain(size_t offset, size_t end, AcaiaMessage &message)
                 message.weight = decode_weight((packet_buffer_[body + 2] << 16) | (packet_buffer_[body + 1] << 8) |
                                                      packet_buffer_[body],
                                                  packet_buffer_[body + 4], packet_buffer_[body + 5]);
-                // TEMP-DIAG: correlate weight-record byte 3 with flow; remove after the flow fix.
-                if (packet_buffer_[body + 3] != 0x00) {
-                    ESP_LOGD(TAG, "[%s] Chained weight byte3=%02X weight=%.2f", this->parent_->address_str(),
-                             packet_buffer_[body + 3], message.weight);
-                }
                 break;
             case ACAIA_RECORD_BATTERY:
                 // Assume the record shares the settings frame's encoding.

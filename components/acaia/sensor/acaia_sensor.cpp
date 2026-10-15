@@ -8,7 +8,9 @@
 
 static const char* TAG = "ACAIA";
 
-constexpr size_t FLOW_MOVING_AVERAGE_SIZE = 20;
+// Weight samples kept for the flow average. At ~10 weight messages/s, 6 samples
+// span ~0.5 s: responsive without idle jitter.
+constexpr size_t FLOW_MOVING_AVERAGE_SIZE = 6;
 
 namespace esphome {
     namespace acaia {
