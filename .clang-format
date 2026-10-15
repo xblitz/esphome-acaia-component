@@ -1,0 +1,5 @@
+# 4-space indent, 120 columns, indented namespaces (matches the existing code).
+BasedOnStyle: LLVM
+IndentWidth: 4
+ColumnLimit: 120
+NamespaceIndentation: All

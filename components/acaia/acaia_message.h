@@ -12,7 +12,7 @@ namespace esphome {
         enum AcaiaButton { tare, start, stop, reset };
 
         class AcaiaMessage {
-        public:
+          public:
             AcaiaMessageType type = none;
 
             bool has_weight = false;
@@ -45,5 +45,5 @@ namespace esphome {
 
             int64_t timestamp;
         };
-    }
-}
+    } // namespace acaia
+} // namespace esphome

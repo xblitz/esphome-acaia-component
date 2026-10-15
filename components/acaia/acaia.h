@@ -3,10 +3,10 @@
 // Created by Magnus Nordlander on 2023-10-24.
 //
 
+#include "acaia_message.h"
+#include "esphome/components/ble_client/ble_client.h"
 #include "esphome/core/component.h"
 #include "esphome/core/helpers.h"
-#include "esphome/components/ble_client/ble_client.h"
-#include "acaia_message.h"
 
 #include <esp_gattc_api.h>
 
@@ -21,8 +21,9 @@ namespace esphome {
         enum class WeightUnits { GRAMS, OUNCES };
 
         class Acaia : public esphome::Component, public esphome::ble_client::BLEClientNode {
-        public:
-            void gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_if, esp_ble_gattc_cb_param_t *param) override;
+          public:
+            void gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_if,
+                                     esp_ble_gattc_cb_param_t *param) override;
             void loop() override;
             void add_on_message_callback(std::function<void(AcaiaMessage)> callback);
             void add_on_tare_callback(std::function<void()> callback);
@@ -38,7 +39,7 @@ namespace esphome {
             void set_sleep(int minutes);
             void set_sound(bool enabled);
 
-        protected:
+          protected:
             void send_message_to_handlers(AcaiaMessage message);
             void parse_record_chain(size_t offset, size_t end, AcaiaMessage &message);
             void handle_button_key(uint8_t key, AcaiaMessage &message, size_t packet_len);
@@ -47,9 +48,9 @@ namespace esphome {
             void send_heartbeat();
             void ident();
             void notification_request();
-            size_t encode(uint8_t message_type, uint8_t* in_buf, size_t len, uint8_t* out_buf, size_t out_buf_len);
+            size_t encode(uint8_t message_type, uint8_t *in_buf, size_t len, uint8_t *out_buf, size_t out_buf_len);
             bool verify_checksum(size_t packet_len);
-            void write_to_scale_characteristic(uint8_t* buf, size_t len);
+            void write_to_scale_characteristic(uint8_t *buf, size_t len);
             void send_setting_change(uint8_t item, uint8_t value);
 
             bool connected_ = false;
@@ -70,5 +71,5 @@ namespace esphome {
             CallbackManager<void()> on_timer_stop_callback_;
             CallbackManager<void()> on_timer_reset_callback_;
         };
-    }
-}
+    } // namespace acaia
+} // namespace esphome
