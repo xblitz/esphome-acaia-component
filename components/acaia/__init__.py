@@ -17,7 +17,6 @@ AcaiaStartTimerAction = acaia_ns.class_("AcaiaStartTimerAction", automation.Acti
 AcaiaStopTimerAction = acaia_ns.class_("AcaiaStopTimerAction", automation.Action)
 AcaiaSetUnitAction = acaia_ns.class_("AcaiaSetUnitAction", automation.Action)
 AcaiaSetSleepAction = acaia_ns.class_("AcaiaSetSleepAction", automation.Action)
-AcaiaSetSoundAction = acaia_ns.class_("AcaiaSetSoundAction", automation.Action)
 
 AcaiaTareTrigger = acaia_ns.class_("AcaiaTareTrigger", automation.Trigger)
 AcaiaTimerStartTrigger = acaia_ns.class_("AcaiaTimerStartTrigger", automation.Trigger)
@@ -27,7 +26,6 @@ AcaiaTimerResetTrigger = acaia_ns.class_("AcaiaTimerResetTrigger", automation.Tr
 CONF_ACAIA_ID = "acaia_id"
 CONF_UNIT = "unit"
 CONF_MINUTES = "minutes"
-CONF_ENABLED = "enabled"
 CONF_ON_TARE = "on_tare"
 CONF_ON_TIMER_START = "on_timer_start"
 CONF_ON_TIMER_STOP = "on_timer_stop"
@@ -113,24 +111,6 @@ async def set_sleep_action(config, action_id, template_arg, args):
     paren = await cg.get_variable(config[CONF_ID])
     var = cg.new_Pvariable(action_id, template_arg, paren)
     cg.add(var.set_minutes(await cg.templatable(config[CONF_MINUTES], args, cg.int_)))
-    return var
-
-
-@automation.register_action(
-    "acaia.set_sound",
-    AcaiaSetSoundAction,
-    cv.Schema(
-        {
-            cv.Required(CONF_ID): cv.use_id(Acaia),
-            cv.Required(CONF_ENABLED): cv.templatable(cv.boolean),
-        }
-    ),
-    synchronous=True,
-)
-async def set_sound_action(config, action_id, template_arg, args):
-    paren = await cg.get_variable(config[CONF_ID])
-    var = cg.new_Pvariable(action_id, template_arg, paren)
-    cg.add(var.set_enabled(await cg.templatable(config[CONF_ENABLED], args, cg.bool_)))
     return var
 
 

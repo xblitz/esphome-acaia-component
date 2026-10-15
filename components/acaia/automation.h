@@ -81,19 +81,6 @@ namespace esphome {
             Acaia *acaia_;
         };
 
-        template<typename... Ts>
-        class AcaiaSetSoundAction : public Action<Ts...> {
-        public:
-            explicit AcaiaSetSoundAction(Acaia *acaia) : acaia_(acaia) {}
-
-            TEMPLATABLE_VALUE(bool, enabled)
-
-            void play(const Ts &...x) override { acaia_->set_sound(this->enabled_.value(x...)); }
-
-        protected:
-            Acaia *acaia_;
-        };
-
         class AcaiaTareTrigger : public Trigger<> {
         public:
             explicit AcaiaTareTrigger(Acaia *parent) {
