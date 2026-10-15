@@ -1,0 +1,34 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  compile:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        esphome-version: ["2026.9.1", "latest"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install ESPHome
+        run: |
+          if [ "${{ matrix.esphome-version }}" = "latest" ]; then
+            pip install esphome
+          else
+            pip install "esphome==${{ matrix.esphome-version }}"
+          fi
+
+      - name: Compile example.yaml against this checkout
+        run: |
+          cp example.yaml ci-example.yaml
+          sed -i "s|source: github://xblitz/esphome-acaia-component|source: $GITHUB_WORKSPACE/components|" ci-example.yaml
+          esphome compile ci-example.yaml
