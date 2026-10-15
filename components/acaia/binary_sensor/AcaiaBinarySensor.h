@@ -16,10 +16,10 @@ namespace esphome {
                 : public esphome::Component, public esphome::Parented<Acaia> {
         public:
             void setup() override {
-                get_parent()->add_on_message_callback([this](AcaiaMessage msg) { this->handleMessage(msg); });
+                get_parent()->add_on_message_callback([this](AcaiaMessage msg) { this->handle_message(msg); });
             }
 
-            void handleMessage(AcaiaMessage message) {
+            void handle_message(AcaiaMessage message) {
                 if (connected_ != nullptr) {
                     connected_->publish_state(message.connected);
                 }

@@ -29,63 +29,63 @@ namespace esphome {
                 : public esphome::Component, public esphome::Parented<Acaia> {
         public:
             void setup() override {
-                flows.reserve(FLOW_MOVING_AVERAGE_SIZE - 1);
-                get_parent()->add_on_message_callback([this](AcaiaMessage msg) { this->handleMessage(msg); });
+                flows_.reserve(FLOW_MOVING_AVERAGE_SIZE - 1);
+                get_parent()->add_on_message_callback([this](AcaiaMessage msg) { this->handle_message(msg); });
             }
 
-            void handleMessage(AcaiaMessage message) {
+            void handle_message(AcaiaMessage message) {
                 if (message.has_weight) {
-                    weightHistory.emplace_back(message.timestamp, message.weight);
+                    weight_history_.emplace_back(message.timestamp, message.weight);
 
-                    while (weightHistory.size() > FLOW_MOVING_AVERAGE_SIZE) {
-                        weightHistory.pop_front();
+                    while (weight_history_.size() > FLOW_MOVING_AVERAGE_SIZE) {
+                        weight_history_.pop_front();
                     }
 
                     
-                    float weightInG = message.weight;
-                    if (should_set(weight_, weightInG, 0.01)) {
-                        weight_->publish_state(weightInG);
+                    float weight_in_g = message.weight;
+                    if (should_set(weight_, weight_in_g, 0.01)) {
+                        weight_->publish_state(weight_in_g);
                     }
                 }
 
-                float avgFlow = calculateAvgFlow();
+                float avg_flow = calculate_avg_flow();
 
-                if (!std::isnan(avgFlow) && should_set(flow_, avgFlow, 0.1)) {
-                    flow_->publish_state(avgFlow);
+                if (!std::isnan(avg_flow) && should_set(flow_, avg_flow, 0.1)) {
+                    flow_->publish_state(avg_flow);
                 }
             }
 
-            float calculateAvgFlow()
+            float calculate_avg_flow()
             {
-                flows.clear();
+                flows_.clear();
                 int64_t now = esp_timer_get_time();
 
-                for (uint16_t i = 3; i < weightHistory.size(); i++) {
-                    auto prev = weightHistory.at(i - 3);
-                    auto curr = weightHistory.at(i);
+                for (uint16_t i = 3; i < weight_history_.size(); i++) {
+                    auto prev = weight_history_.at(i - 3);
+                    auto curr = weight_history_.at(i);
 
                     if ((now - prev.timestamp) > 5000000) {
                         continue;
                     }
 
-                    float timeDiffS = ((float) (curr.timestamp - prev.timestamp)) / 1000000;
-                    float weightDiff = curr.weight - prev.weight;
+                    float time_diff_s = ((float) (curr.timestamp - prev.timestamp)) / 1000000;
+                    float weight_diff = curr.weight - prev.weight;
 
-                    if (fabs(weightDiff) < 20 && timeDiffS >= 0.25 && timeDiffS < 0.35) {
-                        flows.push_back(weightDiff / timeDiffS);
+                    if (fabs(weight_diff) < 20 && time_diff_s >= 0.25 && time_diff_s < 0.35) {
+                        flows_.push_back(weight_diff / time_diff_s);
                     }
                 }
 
-                if (flows.empty()) {
+                if (flows_.empty()) {
                     return NAN;
                 }
 
-                float sumFlows = 0;
-                for (auto f : flows) {
-                    sumFlows += f;
+                float sum_flows = 0;
+                for (auto f : flows_) {
+                    sum_flows += f;
                 }
 
-                return sumFlows / (float)flows.size();
+                return sum_flows / (float)flows_.size();
             }
 
             bool should_set(esphome::sensor::Sensor *sensor, float value, float sigma = 0.1)
@@ -104,8 +104,8 @@ namespace esphome {
             esphome::sensor::Sensor *weight_{nullptr};
             esphome::sensor::Sensor *flow_{nullptr};
 
-            std::deque<AcaiaMeasurement> weightHistory;
-            std::vector<float> flows;
+            std::deque<AcaiaMeasurement> weight_history_;
+            std::vector<float> flows_;
         };
     }
 }

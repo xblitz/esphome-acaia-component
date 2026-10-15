@@ -47,12 +47,12 @@ namespace esphome {
                         ESP_LOGD(TAG, "ESP_GATTC_OPEN_EVT");
                         conn_id_ = param->open.conn_id;
 
-                        connected = true;
+                        connected_ = true;
 
                         AcaiaMessage message;
                         message.timestamp = esp_timer_get_time();
-                        message.connected = connected;
-                        sendMessageToHandlers(message);
+                        message.connected = connected_;
+                        send_message_to_handlers(message);
 
                         break;
                     }
@@ -96,128 +96,128 @@ namespace esphome {
                         }
 
                         ident();
-                        notificationRequest();
-                        last_heartbeat = esp_timer_get_time();
+                        notification_request();
+                        last_heartbeat_ = esp_timer_get_time();
                         break;
                     }
                     case ESP_GATTC_NOTIFY_EVT: {
                         if (param->notify.handle != this->char_handle_)
                             break;
 
-                        if (packetBufferHead + param->notify.value_len >= PACKET_BUFFER_SIZE) {
+                        if (packet_buffer_head_ + param->notify.value_len >= PACKET_BUFFER_SIZE) {
                             ESP_LOGE(TAG, "Received packet would overflow the packet buffer. Ignoring.");
-                            maybeSendHeartbeat();
+                            maybe_send_heartbeat();
                             break;
                         }
-                        memcpy(packetBuffer + packetBufferHead, param->notify.value, param->notify.value_len);
-                        packetBufferHead += param->notify.value_len;
+                        memcpy(packet_buffer_ + packet_buffer_head_, param->notify.value, param->notify.value_len);
+                        packet_buffer_head_ += param->notify.value_len;
 
-                        if (packetBuffer[0] != MAGIC1 || packetBuffer[1] != MAGIC2) {
+                        if (packet_buffer_[0] != MAGIC1 || packet_buffer_[1] != MAGIC2) {
                             ESP_LOGW(TAG, "Packet doesn't start with the magic numbers. Flushing.");
-                            packetBufferHead = 0;
-                            maybeSendHeartbeat();
+                            packet_buffer_head_ = 0;
+                            maybe_send_heartbeat();
                             break;
                         }
 
-                        if (packetBufferHead < 4) {
-                            maybeSendHeartbeat();
+                        if (packet_buffer_head_ < 4) {
+                            maybe_send_heartbeat();
                             break;
                         }
 
-                        auto packetLen = packetBuffer[3] + 5;
+                        auto packet_len = packet_buffer_[3] + 5;
 
-                        if (packetBufferHead < packetLen) {
-                            maybeSendHeartbeat();
+                        if (packet_buffer_head_ < packet_len) {
+                            maybe_send_heartbeat();
                             break;
                         }
 
-                        auto packetType = packetBuffer[2];
+                        auto packet_type = packet_buffer_[2];
 
-                        if (packetType == PACKET_TYPE_SETTINGS) {
+                        if (packet_type == PACKET_TYPE_SETTINGS) {
                             // Settings
                             ESP_LOGI(TAG, "Settings packet");
-                        } else if (packetType == PACKET_TYPE_MESSAGE) {
+                        } else if (packet_type == PACKET_TYPE_MESSAGE) {
                             // Message
-                            auto messageType = packetBuffer[4];
+                            auto message_type = packet_buffer_[4];
 
                             AcaiaMessage message;
 
                             message.timestamp = esp_timer_get_time();
 
-                            message.connected = connected;
+                            message.connected = connected_;
 
-                            switch (messageType) {
+                            switch (message_type) {
                                 case 0x05: {
                                     message.type = AcaiaMessageType::weight;
                                     message.has_weight = true;
-                                    message.weight = decodeWeight((packetBuffer[7] << 16) | (packetBuffer[6] << 8) | packetBuffer[5], packetBuffer[9], packetBuffer[10]);
+                                    message.weight = decode_weight((packet_buffer_[7] << 16) | (packet_buffer_[6] << 8) | packet_buffer_[5], packet_buffer_[9], packet_buffer_[10]);
 
                                     break;
                                 }
                                 case 0x07: {
                                     message.type = AcaiaMessageType::timer;
                                     message.has_time = true;
-                                    message.time = decodeTime(packetBuffer[5], packetBuffer[6], packetBuffer[7]);
+                                    message.time = decode_time(packet_buffer_[5], packet_buffer_[6], packet_buffer_[7]);
 
                                     break;
                                 }
                                 case 0x08: {
                                     message.type = AcaiaMessageType::tare_start_stop_reset;
 
-                                    if (packetBuffer[5] == 0x00 && packetBuffer[6] == 0x05) {
+                                    if (packet_buffer_[5] == 0x00 && packet_buffer_[6] == 0x05) {
                                         message.button = tare;
                                         message.has_weight = true;
-                                        message.weight = decodeWeight((packetBuffer[9] << 16) | (packetBuffer[8] << 8) | packetBuffer[7], packetBuffer[11], packetBuffer[12]);
-                                    } else if (packetBuffer[5] == 0x08 && packetBuffer[6] == 0x05) {
+                                        message.weight = decode_weight((packet_buffer_[9] << 16) | (packet_buffer_[8] << 8) | packet_buffer_[7], packet_buffer_[11], packet_buffer_[12]);
+                                    } else if (packet_buffer_[5] == 0x08 && packet_buffer_[6] == 0x05) {
                                         message.button = start;
                                         message.has_weight = true;
-                                        message.weight = decodeWeight((packetBuffer[9] << 16) | (packetBuffer[8] << 8) | packetBuffer[7], packetBuffer[11], packetBuffer[12]);
-                                    } else if (packetBuffer[5] == 0x0a && packetBuffer[6] == 0x07) {
+                                        message.weight = decode_weight((packet_buffer_[9] << 16) | (packet_buffer_[8] << 8) | packet_buffer_[7], packet_buffer_[11], packet_buffer_[12]);
+                                    } else if (packet_buffer_[5] == 0x0a && packet_buffer_[6] == 0x07) {
                                         message.button = stop;
                                         message.has_weight = true;
-                                        message.weight = decodeWeight((packetBuffer[13] << 16) | (packetBuffer[12] << 8) | packetBuffer[11], packetBuffer[15], packetBuffer[16]);
+                                        message.weight = decode_weight((packet_buffer_[13] << 16) | (packet_buffer_[12] << 8) | packet_buffer_[11], packet_buffer_[15], packet_buffer_[16]);
                                         message.has_time = true;
-                                        message.time = decodeTime(packetBuffer[7], packetBuffer[8], packetBuffer[9]);
-                                    } else if (packetBuffer[5] == 0x09 && packetBuffer[6] == 0x07) {
+                                        message.time = decode_time(packet_buffer_[7], packet_buffer_[8], packet_buffer_[9]);
+                                    } else if (packet_buffer_[5] == 0x09 && packet_buffer_[6] == 0x07) {
                                         message.button = reset;
                                         message.has_time = true;
-                                        message.time = decodeTime(packetBuffer[7], packetBuffer[8], packetBuffer[9]);
+                                        message.time = decode_time(packet_buffer_[7], packet_buffer_[8], packet_buffer_[9]);
                                         message.has_weight = true;
-                                        message.weight = decodeWeight((packetBuffer[13] << 16) | (packetBuffer[12] << 8) | packetBuffer[11], packetBuffer[15], packetBuffer[16]);
+                                        message.weight = decode_weight((packet_buffer_[13] << 16) | (packet_buffer_[12] << 8) | packet_buffer_[11], packet_buffer_[15], packet_buffer_[16]);
                                     }
 
                                     break;
                                 }
                                 case 0x11: {
                                     message.type = heartbeat;
-                                    if (packetBuffer[7] == 0x05) {
+                                    if (packet_buffer_[7] == 0x05) {
                                         message.has_weight = true;
-                                        message.weight = decodeWeight((packetBuffer[10] << 16) | (packetBuffer[9] << 8) | packetBuffer[8], packetBuffer[12], packetBuffer[13]);
-                                    } else if (packetBuffer[7] == 0x07) {
+                                        message.weight = decode_weight((packet_buffer_[10] << 16) | (packet_buffer_[9] << 8) | packet_buffer_[8], packet_buffer_[12], packet_buffer_[13]);
+                                    } else if (packet_buffer_[7] == 0x07) {
                                         message.has_time = true;
-                                        message.time = decodeTime(packetBuffer[8], packetBuffer[9], packetBuffer[10]);
+                                        message.time = decode_time(packet_buffer_[8], packet_buffer_[9], packet_buffer_[10]);
                                     }
 
                                     break;
                                 }
                             }
 
-                            sendMessageToHandlers(message);
+                            send_message_to_handlers(message);
                         }
 
-                        packetBufferHead = 0;
+                        packet_buffer_head_ = 0;
 
-                        maybeSendHeartbeat();
+                        maybe_send_heartbeat();
 
                         break;
                     }
                     case ESP_GATTC_CLOSE_EVT: {
-                        connected = false;
+                        connected_ = false;
 
                         AcaiaMessage message;
                         message.timestamp = esp_timer_get_time();
-                        message.connected = connected;
-                        sendMessageToHandlers(message);
+                        message.connected = connected_;
+                        send_message_to_handlers(message);
 
                         break;
                     }
@@ -236,83 +236,83 @@ namespace esphome {
             }
 
 
-            void sendTare() {
+            void send_tare() {
                 ESP_LOGD(TAG, "Sending Tare");
                 uint8_t payload[] = {0x00};
 
-                uint8_t encodedPayload[sizeof(payload) + 5];
+                uint8_t encoded_payload[sizeof(payload) + 5];
 
-                encode(ACAIA_MESSAGE_TYPE_TARE, payload, sizeof(payload), encodedPayload, sizeof(encodedPayload));
+                encode(ACAIA_MESSAGE_TYPE_TARE, payload, sizeof(payload), encoded_payload, sizeof(encoded_payload));
 
-                write_to_scale_characteristic(encodedPayload, sizeof(encodedPayload));
+                write_to_scale_characteristic(encoded_payload, sizeof(encoded_payload));
             }
 
-            void resetTimer() {
+            void reset_timer() {
                 ESP_LOGD(TAG, "Resetting timer");
                 uint8_t payload[] = {0x00, 0x01};
 
-                uint8_t encodedPayload[sizeof(payload) + 5];
+                uint8_t encoded_payload[sizeof(payload) + 5];
 
-                encode(ACAIA_MESSAGE_TYPE_TIMER_MANIPULATION, payload, sizeof(payload), encodedPayload, sizeof(encodedPayload));
+                encode(ACAIA_MESSAGE_TYPE_TIMER_MANIPULATION, payload, sizeof(payload), encoded_payload, sizeof(encoded_payload));
 
-                write_to_scale_characteristic(encodedPayload, sizeof(encodedPayload));
+                write_to_scale_characteristic(encoded_payload, sizeof(encoded_payload));
             }
 
-            void startTimer() {
+            void start_timer() {
                 ESP_LOGD(TAG, "Starting timer");
                 uint8_t payload[] = {0x00, 0x00};
 
-                uint8_t encodedPayload[sizeof(payload) + 5];
+                uint8_t encoded_payload[sizeof(payload) + 5];
 
-                encode(ACAIA_MESSAGE_TYPE_TIMER_MANIPULATION, payload, sizeof(payload), encodedPayload, sizeof(encodedPayload));
+                encode(ACAIA_MESSAGE_TYPE_TIMER_MANIPULATION, payload, sizeof(payload), encoded_payload, sizeof(encoded_payload));
 
-                write_to_scale_characteristic(encodedPayload, sizeof(encodedPayload));
+                write_to_scale_characteristic(encoded_payload, sizeof(encoded_payload));
             }
 
-            void stopTimer() {
+            void stop_timer() {
                 ESP_LOGD(TAG, "Stopping timer");
                 uint8_t payload[] = {0x00, 0x02};
 
-                uint8_t encodedPayload[sizeof(payload) + 5];
+                uint8_t encoded_payload[sizeof(payload) + 5];
 
-                encode(ACAIA_MESSAGE_TYPE_TIMER_MANIPULATION, payload, sizeof(payload), encodedPayload, sizeof(encodedPayload));
+                encode(ACAIA_MESSAGE_TYPE_TIMER_MANIPULATION, payload, sizeof(payload), encoded_payload, sizeof(encoded_payload));
 
-                write_to_scale_characteristic(encodedPayload, sizeof(encodedPayload));
+                write_to_scale_characteristic(encoded_payload, sizeof(encoded_payload));
             }
 
         protected:
-            void sendMessageToHandlers(AcaiaMessage message) {
+            void send_message_to_handlers(AcaiaMessage message) {
                 this->on_message_callback_.call(message);
             }
 
-            float decodeWeight(uint32_t raw, uint8_t unit, uint8_t signifier) {
+            float decode_weight(uint32_t raw, uint8_t unit, uint8_t signifier) {
                 float divisor = powf(10.f, (float)unit);
                 float multiplier = ((signifier & 0x02) == 0x02) ? -1.f : 1.f;
                 return ((float)raw / divisor) * multiplier;
             }
 
-            float decodeTime(uint8_t minutes, uint8_t seconds, uint8_t tens) {
+            float decode_time(uint8_t minutes, uint8_t seconds, uint8_t tens) {
                 float value = minutes * 60;
                 value = value + seconds;
                 return value + ((float)tens / 10.f);
             }
 
-            void maybeSendHeartbeat() {
-                if (esp_timer_get_time() - last_heartbeat > 1000*1000) {
-                    sendHeartbeat();
+            void maybe_send_heartbeat() {
+                if (esp_timer_get_time() - last_heartbeat_ > 1000*1000) {
+                    send_heartbeat();
                 }
             }
 
-            void sendHeartbeat() {
+            void send_heartbeat() {
                 ESP_LOGD(TAG, "Sending Heartbeat");
 
                 uint8_t payload[2] = {0x02, 0x00};
-                uint8_t encodedPayload[sizeof(payload) + 5];
+                uint8_t encoded_payload[sizeof(payload) + 5];
 
-                encode(ACAIA_MESSAGE_TYPE_HEARTBEAT, payload, sizeof(payload), encodedPayload, sizeof(encodedPayload));
+                encode(ACAIA_MESSAGE_TYPE_HEARTBEAT, payload, sizeof(payload), encoded_payload, sizeof(encoded_payload));
 
-                write_to_scale_characteristic(encodedPayload, sizeof(encodedPayload));
-                last_heartbeat = esp_timer_get_time();
+                write_to_scale_characteristic(encoded_payload, sizeof(encoded_payload));
+                last_heartbeat_ = esp_timer_get_time();
             }
 
             void ident() {
@@ -320,14 +320,14 @@ namespace esphome {
                 uint8_t payload[15] = {0x2d, 0x2d, 0x2d, 0x2d, 0x2d, 0x2d, 0x2d, 0x2d, 0x2d, 0x2d, 0x2d, 0x2d,
                                      0x2d, 0x2d, 0x2d};
 
-                uint8_t encodedPayload[sizeof(payload) + 5];
+                uint8_t encoded_payload[sizeof(payload) + 5];
 
-                encode(ACAIA_MESSAGE_TYPE_IDENT, payload, sizeof(payload), encodedPayload, sizeof(encodedPayload));
+                encode(ACAIA_MESSAGE_TYPE_IDENT, payload, sizeof(payload), encoded_payload, sizeof(encoded_payload));
 
-                write_to_scale_characteristic(encodedPayload, sizeof(encodedPayload));
+                write_to_scale_characteristic(encoded_payload, sizeof(encoded_payload));
             }
 
-            void notificationRequest() {
+            void notification_request() {
                 ESP_LOGD(TAG, "Requesting notifications");
 
                 uint8_t payload[] = {
@@ -342,36 +342,36 @@ namespace esphome {
                         4, // setting
                 };
 
-                uint8_t encodedBuf[sizeof(payload) + 5];
+                uint8_t encoded_buf[sizeof(payload) + 5];
 
-                encode(ACAIA_MESSAGE_TYPE_NOTIFICATION_REQUEST, payload, sizeof(payload), encodedBuf, sizeof(encodedBuf));
+                encode(ACAIA_MESSAGE_TYPE_NOTIFICATION_REQUEST, payload, sizeof(payload), encoded_buf, sizeof(encoded_buf));
 
-                write_to_scale_characteristic(encodedBuf, sizeof(encodedBuf));
+                write_to_scale_characteristic(encoded_buf, sizeof(encoded_buf));
             }
 
-            size_t encode(uint8_t messageType, uint8_t* inBuf, size_t len, uint8_t* outBuf, size_t outBufLen)
+            size_t encode(uint8_t message_type, uint8_t* in_buf, size_t len, uint8_t* out_buf, size_t out_buf_len)
             {
-                if (outBufLen < len + 5) {
-                    ESP_LOGE(TAG, "Invalid size on output buffer for encoding message of type %u", messageType);
+                if (out_buf_len < len + 5) {
+                    ESP_LOGE(TAG, "Invalid size on output buffer for encoding message of type %u", message_type);
                     return 0;
                 }
 
-                outBuf[0] = MAGIC1;
-                outBuf[1] = MAGIC2;
-                outBuf[2] = messageType;
+                out_buf[0] = MAGIC1;
+                out_buf[1] = MAGIC2;
+                out_buf[2] = message_type;
                 uint8_t cksum1 = 0;
                 uint8_t cksum2 = 0;
                 for (uint16_t i = 0; i < len; i++) {
-                    uint8_t val = inBuf[i] & 0xff;
-                    outBuf[3 + i] = val;
+                    uint8_t val = in_buf[i] & 0xff;
+                    out_buf[3 + i] = val;
                     if (i % 2 == 0) {
                         cksum1 += val;
                     } else {
                         cksum2 += val;
                     }
                 }
-                outBuf[len + 3] = cksum1 & 0xff;
-                outBuf[len + 4] = cksum2 & 0xff;
+                out_buf[len + 3] = cksum1 & 0xff;
+                out_buf[len + 4] = cksum2 & 0xff;
 
                 return len + 5;
             }
@@ -387,15 +387,15 @@ namespace esphome {
                 }
             }
 
-            bool connected = false;
+            bool connected_ = false;
 
             uint16_t conn_id_;
 
             uint16_t char_handle_;
-            uint64_t last_heartbeat;
+            uint64_t last_heartbeat_;
 
-            uint8_t packetBuffer[PACKET_BUFFER_SIZE];
-            uint16_t packetBufferHead = 0;
+            uint8_t packet_buffer_[PACKET_BUFFER_SIZE];
+            uint16_t packet_buffer_head_ = 0;
 
             CallbackManager<void(AcaiaMessage)> on_message_callback_;
         };
